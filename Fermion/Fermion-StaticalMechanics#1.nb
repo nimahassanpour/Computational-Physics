@@ -1,1211 +1,764 @@
-(* Content-type: application/vnd.wolfram.mathematica *)
+(*Physics 584,Computational Methods,Mark Alford,Jan 2015 Exercise \
+2:Modeling a nucleus as a gas of free nucleons*)(*Set up relativistic \
+and nonrelativistic free Fermi gas*)
 
-(*** Wolfram Notebook File ***)
-(* http://www.wolfram.com/nb *)
 
-(* CreatedBy='Mathematica 10.3' *)
+e$1[p_, m_] = Module[{}, Sqrt[p^2 + m^2]];
+number$density[pF_, m_] = Module[{}, pF^3/(3*Pi^2)];
+energy$density[pF_, m_] = 
+  Module[{p}, 
+   1/Pi^2*Integrate[e$1[p, m]*p^2, {p, 0, pF}, 
+     Assumptions -> {pF > 0, m > 0}]];
+pFermi[mu_, m_] = Module[{}, Sqrt[mu^2 - m^2]];
+pressure[mu_, m_] = Module[{pF}, pF = pFermi[mu, m];
+   Simplify[
+    mu*number$density[pF, m] - energy$density[pF, m], {mu > m, 
+     m > 0}]];
 
-(*CacheID: 234*)
-(* Internal cache information:
-NotebookFileLineBreakTest
-NotebookFileLineBreakTest
-NotebookDataPosition[       158,          7]
-NotebookDataLength[     50308,       1203]
-NotebookOptionsPosition[     49018,       1174]
-NotebookOutlinePosition[     49365,       1189]
-CellTagsIndexPosition[     49322,       1186]
-WindowFrame->Normal*)
+e$NR[p_, m_] = Module[{}, m + p^2/(2*m)];
+pFermi$NR[mu_, m_] = Module[{}, Sqrt[2*m*(mu - m)]];
+number$density$NR[pF_, m_] = Module[{}, pF^3/(3*Pi^2)];
+(*as before*)
+energy$density$NR[pF_, m_] = 
+  Module[{p}, 
+   1/Pi^2*Integrate[e$NR[p, m]*p^2, {p, 0, pF}, 
+     Assumptions -> {pF > 0}]];
+pressure$NR[mu_, m_] = Module[{pF}, pF = pFermi$NR[mu, m];
+   Simplify[
+    mu*number$density$NR[pF, m] - energy$density$NR[pF, m], {mu > m, 
+     m > 0}]];
 
-(* Beginning of Notebook Content *)
-Notebook[{
 
-Cell[CellGroupData[{
-Cell[BoxData[
- RowBox[{
-  RowBox[{"(*", 
-   RowBox[{
-    RowBox[{"Physics", " ", "584"}], ",", 
-    RowBox[{"Computational", " ", "Methods"}], ",", 
-    RowBox[{"Mark", " ", "Alford"}], ",", 
-    RowBox[{
-     RowBox[{"March", " ", "2016", " ", "Exercise", " ", "1"}], ":", 
-     RowBox[{
-     "Free", " ", "fermion", " ", "gas", " ", "at", " ", "zero", " ", 
-      "temperature"}]}]}], "*)"}], 
-  RowBox[{
-   RowBox[{
-    RowBox[{
-     RowBox[{"e$1", "[", 
-      RowBox[{"p_", ",", "m_"}], "]"}], "=", 
-     RowBox[{"Module", "[", 
-      RowBox[{
-       RowBox[{"{", "}"}], ",", 
-       RowBox[{"Sqrt", "[", 
-        RowBox[{
-         RowBox[{"p", "^", "2"}], " ", "+", " ", 
-         RowBox[{"m", "^", "2"}]}], "]"}]}], " ", 
-      RowBox[{"(*", 
-       RowBox[{
-       "fill", " ", "in", " ", "single", " ", "particle", " ", "dispersion", 
-        " ", "relation", " ", "here"}], "*)"}], "]"}]}], ";"}], 
-   "\[IndentingNewLine]", 
-   RowBox[{"Plot", "[", 
-    RowBox[{
-     RowBox[{"e$1", "[", 
-      RowBox[{"p", ",", "0.51"}], "]"}], ",", 
-     RowBox[{"{", 
-      RowBox[{"p", ",", 
-       RowBox[{"-", "5"}], ",", 
-       RowBox[{"+", "5"}]}], "}"}]}], "]"}], "\n", 
-   RowBox[{"(*", 
-    RowBox[{
-     RowBox[{
-     "Make", " ", "a", " ", "plot", " ", "of", " ", "the", " ", "dispersion", 
-      " ", "relation", " ", "of", " ", "electrons", " ", 
-      RowBox[{"(", 
-       RowBox[{"mass", "=", 
-        RowBox[{"0.51", " ", "MeV"}]}], ")"}], " ", "for", " ", "momenta", 
-      " ", "from"}], "-", 
-     RowBox[{"5", " ", "MeV", " ", "to"}], "+", 
-     RowBox[{"5", " ", "MeV"}]}], "*)"}], "\[IndentingNewLine]", 
-   "\[IndentingNewLine]", 
-   RowBox[{
-    RowBox[{
-     RowBox[{"number$density", "[", 
-      RowBox[{"pF_", ",", "m_"}], "]"}], "=", 
-     RowBox[{"Module", "[", 
-      RowBox[{
-       RowBox[{"{", "}"}], ",", 
-       RowBox[{
-        RowBox[{"pF", "^", "3"}], "/", 
-        RowBox[{"(", 
-         RowBox[{"3", "*", 
-          RowBox[{"Pi", "^", "2"}]}], ")"}]}]}], "]"}]}], ";"}], "\n", 
-   "\[IndentingNewLine]", 
-   RowBox[{
-    RowBox[{
-     RowBox[{"energy$density", "[", 
-      RowBox[{"pF_", ",", "m_"}], "]"}], "=", 
-     RowBox[{"Module", "[", 
-      RowBox[{
-       RowBox[{"{", "}"}], ",", " ", 
-       RowBox[{
-        FractionBox["1", 
-         SuperscriptBox["\[Pi]", "2"]], 
-        RowBox[{"Integrate", "[", 
-         RowBox[{
-          RowBox[{
-           RowBox[{"e$1", "[", 
-            RowBox[{"p", ",", "m"}], "]"}], 
-           SuperscriptBox["p", "2"]}], ",", 
-          RowBox[{"{", 
-           RowBox[{"p", ",", "0", ",", "pF"}], "}"}], ",", 
-          RowBox[{"Assumptions", "\[Rule]", 
-           RowBox[{"{", 
-            RowBox[{
-             RowBox[{"m", ">", "0"}], " ", ",", 
-             RowBox[{"pF", ">", "0"}], ",", "e"}], "}"}]}]}], "]"}]}]}], 
-      RowBox[{"(*", 
-       RowBox[{"to", " ", "be", " ", "filled", " ", "in", " ", "using", " ", 
-        RowBox[{"e$1", "[", 
-         RowBox[{"p", ",", "m"}], "]"}]}], "*)"}], 
-      RowBox[{"(*", 
-       RowBox[{
-       "note", " ", "that", " ", "you", " ", "may", " ", "need", " ", "to", 
-        " ", "use", " ", "the", " ", "\"\<Assumptions\>\"", " ", "option", 
-        " ", "to", " ", "help", " ", "mathematica", " ", "to", " ", 
-        "evaluate", " ", "the", " ", "integral"}], "*)"}], "]"}]}], ";"}], 
-   "\[IndentingNewLine]", "\[IndentingNewLine]", 
-   RowBox[{"(*", 
-    RowBox[{
-    "Physical", " ", "value", " ", "of", " ", "Fermi", " ", "momentum", " ", 
-     "for", " ", "a", " ", "given", " ", "chemical", " ", 
-     RowBox[{"potential", ":"}]}], "*)"}], "\n", 
-   RowBox[{
-    RowBox[{
-     RowBox[{"pFermi", "[", 
-      RowBox[{"mu_", ",", "m_"}], "]"}], "=", 
-     RowBox[{"Module", "[", 
-      RowBox[{
-       RowBox[{"{", "}"}], ",", 
-       RowBox[{"Sqrt", "[", 
-        RowBox[{
-         SuperscriptBox["mu", "2"], "-", 
-         SuperscriptBox["m", "2"]}], "]"}]}], 
-      RowBox[{"(*", 
-       RowBox[{"to", " ", "be", " ", "filled", " ", "in"}], "*)"}], "]"}]}], 
-    ";"}], "\[IndentingNewLine]", "\n", 
-   RowBox[{"(*", 
-    RowBox[{
-     RowBox[{
-     "Test", " ", "that", " ", "for", " ", "the", " ", "physical", " ", 
-      "value", " ", "of", " ", "the", " ", "Fermi", " ", "momentum"}], ",", 
-     RowBox[{"d", " ", 
-      RowBox[{"e", "/", "d"}], " ", "n", " ", "is", " ", 
-      RowBox[{"mu", ":"}]}]}], "*)"}], "\[IndentingNewLine]", 
-   RowBox[{
-    RowBox[{"If", "[", 
-     RowBox[{
-      RowBox[{
-       RowBox[{"FullSimplify", "[", 
-        RowBox[{
-         RowBox[{"D", "[", 
-          RowBox[{
-           RowBox[{"energy$density", "[", 
-            RowBox[{"pF", ",", "m"}], "]"}], ",", "pF"}], "]"}], "/", 
-         RowBox[{"D", "[", 
-          RowBox[{
-           RowBox[{"number$density", "[", 
-            RowBox[{"pF", ",", "m"}], "]"}], ",", "pF"}], "]"}]}], "]"}], 
-       "\[Equal]", " ", 
-       RowBox[{"e$1", "[", 
-        RowBox[{"pF", ",", "m"}], "]"}]}], 
-      RowBox[{"(*", 
-       RowBox[{
-        RowBox[{
-        "fill", " ", "in", " ", "code", " ", "for", " ", "the", " ", 
-         "condition", " ", 
-         RowBox[{"de", "/", "dn"}]}], "\[Equal]", 
-        RowBox[{
-         RowBox[{"mu", ".", "You"}], " ", "will", " ", "need", " ", "to", " ",
-          "use", " ", 
-         RowBox[{"Simplify", "[", "]"}], " ", "and", " ", "tell", " ", "it", 
-         " ", "that", " ", "mu"}], ">", 
-        RowBox[{"m", " ", "and", " ", "m"}], ">", "0"}], "*)"}], 
-      "\[IndentingNewLine]", ",", 
-      RowBox[{"Print", "[", "\"\<d e / d n == mu   OK\>\"", "]"}], ",", 
-      RowBox[{"(*", "else", "*)"}], 
-      RowBox[{"Print", "[", "\"\<**** d e / d n == mu failed\>\"", "]"}]}], 
-     "]"}], ";"}], "\n", "\[IndentingNewLine]", 
-   RowBox[{
-    RowBox[{
-     RowBox[{"pressure", "[", 
-      RowBox[{"mu_", ",", "m_"}], "]"}], "=", 
-     RowBox[{"Module", "[", 
-      RowBox[{
-       RowBox[{"{", 
-        RowBox[{"pF", "=", 
-         RowBox[{"pFermi", "[", 
-          RowBox[{"mu", ",", "m"}], "]"}]}], "}"}], ",", 
-       RowBox[{"FullSimplify", "[", 
-        RowBox[{
-         RowBox[{"mu", " ", 
-          RowBox[{"number$density", "[", 
-           RowBox[{"pF", ",", "m"}], "]"}]}], "-", 
-         RowBox[{"energy$density", "[", 
-          RowBox[{"pF", ",", "m"}], "]"}]}], "]"}]}], 
-      RowBox[{"(*", 
-       RowBox[{"fill", " ", "this", " ", "in"}], "*)"}], "]"}]}], ";"}], "\n",
-    "\[IndentingNewLine]", 
-   RowBox[{"(*", 
-    RowBox[{"Evaluate", " ", "the", " ", "pressure", " ", "in", " ", 
-     RowBox[{"MeV", "^", "4"}], " ", "of", " ", "a", " ", "gas", " ", "of", 
-     " ", "electrons", " ", "with", " ", "chemical", " ", "potential", " ", 
-     "4", " ", 
-     RowBox[{"MeV", ":"}]}], "*)"}], "\[IndentingNewLine]", 
-   RowBox[{
-    RowBox[{"Print", "[", 
-     RowBox[{"\"\<electron pressure at mu=4MeV is: \>\"", ",", 
-      RowBox[{"pressure", "[", 
-       RowBox[{"4.0", ",", "0.51"}], "]"}], ",", "\"\< MeV^4\>\""}], "]"}], 
-    ";"}], "\[IndentingNewLine]", "\[IndentingNewLine]", 
-   RowBox[{"(*", 
-    RowBox[{
-     RowBox[{"Test", " ", "that", " ", "d", " ", 
-      RowBox[{"pressure", "/", "d"}], " ", "mu"}], "\[Equal]", 
-     RowBox[{"n", ":"}]}], "*)"}], "\n", 
-   RowBox[{
-    RowBox[{"If", "[", 
-     RowBox[{
-      RowBox[{
-       RowBox[{"FullSimplify", "[", 
-        RowBox[{
-         RowBox[{"D", "[", 
-          RowBox[{
-           RowBox[{"pressure", "[", 
-            RowBox[{"mu", ",", "m"}], "]"}], ",", "mu"}], "]"}], ",", 
-         RowBox[{"Assumptions", "\[Rule]", 
-          RowBox[{"mu", ">", "0"}]}]}], "]"}], "\[Equal]", " ", 
-       RowBox[{"number$density", "[", 
-        RowBox[{
-         RowBox[{"pFermi", "[", 
-          RowBox[{"mu", ",", "m"}], "]"}], ",", "m"}], "]"}]}], 
-      RowBox[{"(*", 
-       RowBox[{"fill", " ", "in", " ", "here"}], "*)"}], 
-      "\[IndentingNewLine]", ",", 
-      RowBox[{"Print", "[", "\"\<d p / d mu == n   OK\>\"", "]"}], ",", 
-      RowBox[{"(*", "else", "*)"}], 
-      RowBox[{"Print", "[", "\"\<**** d p / d mu == n failed\>\"", "]"}]}], 
-     "]"}], ";"}], "\[IndentingNewLine]", "\[IndentingNewLine]", 
-   "\[IndentingNewLine]", 
-   RowBox[{"(*", 
-    RowBox[{
-     RowBox[{
-     "Now", " ", "we", " ", "will", " ", "obtain", " ", "ultrarelativistic", 
-      " ", 
-      RowBox[{"(", 
-       RowBox[{"mu", ">>", "m"}], ")"}], " ", "limits", " ", "of", " ", "the",
-       " ", "number", " ", "density"}], ",", 
-     RowBox[{"energy", " ", "density"}], ",", 
-     RowBox[{"and", " ", "pressure"}], ",", 
-     RowBox[{
-      RowBox[{"by", " ", "re"}], "-", 
-      RowBox[{
-      "evaluating", " ", "the", " ", "general", " ", "expressions", " ", 
-       "using", " ", "the", " ", "ultra"}], "-", 
-      RowBox[{"relativistic", " ", "dispersion", " ", "relation"}]}]}], 
-    "*)"}], "\[IndentingNewLine]", "\[IndentingNewLine]", 
-   RowBox[{"(*", 
-    RowBox[{
-     RowBox[{
-     "Ultrarelativistic", " ", "limit", " ", "of", " ", "single", " ", 
-      "particle", " ", "dispersion", " ", "relation", " ", 
-      RowBox[{"(", 
-       RowBox[{
-       "at", " ", "such", " ", "high", " ", "momenta", " ", "we", " ", "can", 
-        " ", "neglect", " ", "the", " ", "mass"}], ")"}]}], ":"}], "*)"}], 
-   "\n", 
-   RowBox[{
-    RowBox[{
-     RowBox[{"e$ultra", "[", "p_", "]"}], "=", 
-     RowBox[{"Module", "[", 
-      RowBox[{
-       RowBox[{"{", "}"}], ",", "p"}], 
-      RowBox[{"(*", 
-       RowBox[{"to", " ", "be", " ", "filled", " ", "in"}], "*)"}], "]"}]}], 
-    ";"}], "\[IndentingNewLine]", "\[IndentingNewLine]", 
-   RowBox[{"(*", 
-    RowBox[{
-     RowBox[{"A", " ", "simple", " ", 
-      RowBox[{"check", ":", 
-       RowBox[{
-       "make", " ", "a", " ", "single", " ", "plot", " ", "showing", " ", 
-        "both", " ", "the", " ", "exact", " ", "dispersion", " ", "relation", 
-        " ", "for", " ", "electrons", " ", "and", " ", "the", " ", 
-        "ultrarelativistic", " ", "approximation", " ", "to", " ", "it"}]}]}],
-      ",", 
-     RowBox[{
-      RowBox[{"for", " ", "momentum", " ", "from"}], "-", 
-      RowBox[{"3", " ", "MeV", " ", "to"}], "+", 
-      RowBox[{"3", " ", "MeV"}]}]}], "*)"}], "\n", 
-   RowBox[{"Plot", "[", 
-    RowBox[{
-     RowBox[{"{", 
-      RowBox[{
-       RowBox[{"e$ultra", "[", "p", "]"}], ",", 
-       RowBox[{"e$1", "[", 
-        RowBox[{"p", ",", "0.51"}], "]"}]}], "}"}], ",", 
-     RowBox[{"{", 
-      RowBox[{"p", ",", 
-       RowBox[{"-", "3"}], ",", "3"}], "}"}]}], 
-    RowBox[{"(*", 
-     RowBox[{"to", " ", "be", " ", "filled", " ", "in"}], "*)"}], "]"}], 
-   "\[IndentingNewLine]", "\[IndentingNewLine]", 
-   RowBox[{"(*", 
-    RowBox[{
-    "Now", " ", "use", " ", "the", " ", "ultrarelativistic", " ", 
-     "dispersion", " ", "relation", " ", "to", " ", "generate", " ", 
-     "ultrarelativistic", " ", "expressions", " ", "for", " ", "the", " ", 
-     "pressure", " ", 
-     RowBox[{"etc", ":"}]}], "*)"}], "\n", 
-   RowBox[{
-    RowBox[{
-     RowBox[{"pFermi$ultra", "[", "mu_", "]"}], "=", "mu"}], 
-    RowBox[{"(*", 
-     RowBox[{"to", " ", "be", " ", "filled", " ", "in"}], "*)"}], ";"}], "\n", 
-   RowBox[{
-    RowBox[{
-     RowBox[{"number$density$ultra", "[", "pF_", "]"}], "=", 
-     RowBox[{"Module", "[", 
-      RowBox[{
-       RowBox[{"{", "}"}], ",", 
-       RowBox[{
-        RowBox[{"pF", "^", "3"}], "/", 
-        RowBox[{"(", 
-         RowBox[{"3", "*", 
-          RowBox[{"Pi", "^", "2"}]}], ")"}]}]}], 
-      RowBox[{"(*", 
-       RowBox[{"to", " ", "be", " ", "filled", " ", "in"}], "*)"}], "]"}]}], 
-    ";"}], "\n", 
-   RowBox[{
-    RowBox[{
-     RowBox[{"energy$density$ultra", "[", "pF_", "]"}], "=", 
-     RowBox[{"Module", "[", 
-      RowBox[{
-       RowBox[{"{", "}"}], ",", 
-       RowBox[{
-        FractionBox["1", 
-         SuperscriptBox["\[Pi]", "2"]], 
-        RowBox[{"Integrate", "[", 
-         RowBox[{
-          RowBox[{
-           RowBox[{"e$ultra", "[", "p", "]"}], 
-           SuperscriptBox["p", "2"]}], ",", 
-          RowBox[{"{", 
-           RowBox[{"p", ",", "0", ",", "pF"}], "}"}], ",", 
-          RowBox[{"Assumptions", "\[Rule]", 
-           RowBox[{"{", 
-            RowBox[{
-             RowBox[{"m", ">", "0"}], " ", ",", 
-             RowBox[{"pF", ">", "0"}]}], "}"}]}]}], "]"}]}]}], 
-      RowBox[{"(*", 
-       RowBox[{"to", " ", "be", " ", "filled", " ", "in"}], "*)"}], "]"}]}], 
-    ";"}], "\n", 
-   RowBox[{
-    RowBox[{
-     RowBox[{"pressure$ultra", "[", "mu_", "]"}], "=", 
-     RowBox[{"Module", "[", 
-      RowBox[{
-       RowBox[{"{", 
-        RowBox[{"pF", "=", "mu"}], "}"}], ",", 
-       RowBox[{"FullSimplify", "[", 
-        RowBox[{
-         RowBox[{"mu", " ", 
-          RowBox[{"number$density$ultra", "[", "pF", "]"}]}], "-", 
-         RowBox[{"energy$density$ultra", "[", "pF", "]"}]}], "]"}]}], 
-      RowBox[{"(*", 
-       RowBox[{"to", " ", "be", " ", "filled", " ", "in"}], "*)"}], "]"}]}], 
-    ";"}], "\[IndentingNewLine]", "\n", 
-   RowBox[{"(*", 
-    RowBox[{
-     RowBox[{"Use", " ", "the", " ", 
-      RowBox[{"Series", "[", "]"}], " ", "function", " ", "to", " ", "check", 
-      " ", "that", " ", "the", " ", "ultrarelativistic", " ", "expression", 
-      " ", "for", " ", "the", " ", "pressure", " ", "agrees", " ", "with", 
-      " ", "the", " ", "m"}], "\[Rule]", 
-     RowBox[{
-      RowBox[{"0", " ", "limit", " ", "of", " ", 
-       RowBox[{"pressure", "[", 
-        RowBox[{"mu", ",", "m"}], "]"}]}], ":"}]}], "*)"}], 
-   "\[IndentingNewLine]", 
-   RowBox[{
-    RowBox[{"If", "[", 
-     RowBox[{
-      RowBox[{
-       RowBox[{"Assuming", "[", 
-        RowBox[{
-         RowBox[{"mu", ">", "0"}], ",", 
-         RowBox[{"Normal", "[", 
-          RowBox[{"FullSimplify", "[", 
-           RowBox[{"Series", "[", 
-            RowBox[{
-             RowBox[{"pressure", "[", 
-              RowBox[{"mu", ",", "m"}], "]"}], ",", 
-             RowBox[{"{", 
-              RowBox[{"m", ",", "0", ",", "1"}], "}"}]}], "]"}], "]"}], 
-          "]"}]}], "]"}], "==", 
-       RowBox[{"pressure$ultra", "[", "mu", "]"}]}], 
-      RowBox[{"(*", 
-       RowBox[{"fill", " ", "in", " ", "here"}], "*)"}], 
-      "\[IndentingNewLine]", ",", 
-      RowBox[{
-      "Print", "[", "\"\<Ultrarelativistic limit of pressure OK\>\"", "]"}], 
-      ",", 
-      RowBox[{"(*", "else", "*)"}], 
-      RowBox[{
-      "Print", "[", 
-       "\"\<**** Ultrarelativistic limit of pressure failed!\>\"", "]"}]}], 
-     "]"}], ";"}], "\[IndentingNewLine]", "\[IndentingNewLine]", 
-   "\[IndentingNewLine]", 
-   RowBox[{"(*", 
-    RowBox[{
-     RowBox[{
-     "Now", " ", "we", " ", "will", " ", "obtain", " ", "nonrelativistic", 
-      " ", "limits", " ", "of", " ", "the", " ", "number", " ", "density"}], 
-     ",", 
-     RowBox[{"energy", " ", "density"}], ",", 
-     RowBox[{"and", " ", "pressure"}], ",", 
-     RowBox[{
-      RowBox[{"by", " ", "assuming", " ", 
-       RowBox[{"(", 
-        RowBox[{"mu", "-", "m"}], ")"}], " ", 
-       RowBox[{"<<", "m"}], " ", "and", " ", "re"}], "-", 
-      RowBox[{
-      "evaluating", " ", "the", " ", "general", " ", "expressions", " ", 
-       "using", " ", "a", " ", "non"}], "-", 
-      RowBox[{
-      "relativistic", " ", "dispersion", " ", "relation", " ", "e$NR", " ", 
-       "and", " ", "corresponding", " ", "expression", " ", "pFermi$NR", " ", 
-       "for", " ", "the", " ", "Fermi", " ", 
-       RowBox[{"momentum", ":"}]}]}]}], "*)"}], "\n", "\[IndentingNewLine]", 
-   RowBox[{
-    RowBox[{
-     RowBox[{"e$NR", "[", 
-      RowBox[{"p_", ",", "m_"}], "]"}], "=", 
-     RowBox[{"Module", "[", 
-      RowBox[{
-       RowBox[{"{", "}"}], ",", 
-       RowBox[{"m", "+", 
-        RowBox[{
-         RowBox[{"p", "^", "2"}], "/", 
-         RowBox[{"(", 
-          RowBox[{"2", "*", "m"}], ")"}]}]}]}], "]"}]}], ";"}], 
-   "\[IndentingNewLine]", "\[IndentingNewLine]", 
-   RowBox[{
-    RowBox[{
-     RowBox[{
-      RowBox[{"Plot", "[", 
-       RowBox[{
-        RowBox[{"{", 
-         RowBox[{
-          RowBox[{"e$ultra", "[", "p", "]"}], ",", 
-          RowBox[{"e$1", "[", 
-           RowBox[{"p", ",", "0.51"}], "]"}], ",", 
-          RowBox[{"e$NR", "[", 
-           RowBox[{"p", ",", ".51"}], "]"}]}], "}"}], ",", 
-        RowBox[{"{", 
-         RowBox[{"p", ",", 
-          RowBox[{"-", "3"}], ",", "3"}], "}"}]}], 
-       RowBox[{"(*", 
-        RowBox[{"to", " ", "be", " ", "filled", " ", "in"}], "*)"}], "]"}], 
-      RowBox[{"(*", 
-       RowBox[{
-        RowBox[{"NR", " ", "energy"}], ",", 
-        RowBox[{"including", " ", "rest", " ", "mass"}]}], "*)"}], 
-      RowBox[{"(*", 
-       RowBox[{
-        RowBox[{"A", " ", "simple", " ", 
-         RowBox[{"check", ":", 
-          RowBox[{
-          "make", " ", "a", " ", "single", " ", "plot", " ", "showing", " ", 
-           "the", " ", "exact"}]}]}], ",", "ultrarelativistic", ",", 
-        RowBox[{
-        "and", " ", "nonrelativistic", " ", "dispersion", " ", "relations", 
-         " ", "for", " ", "electrons"}], ",", 
-        RowBox[{
-         RowBox[{"for", " ", "momentum", " ", "from"}], "-", 
-         RowBox[{"3", " ", "MeV", " ", "to"}], "+", 
-         RowBox[{"3", " ", 
-          RowBox[{"MeV", ":"}]}]}]}], "*)"}], 
-      RowBox[{"(*", 
-       RowBox[{"code", " ", "to", " ", "be", " ", "filled", " ", "in"}], 
-       "*)"}], 
-      RowBox[{"(*", 
-       RowBox[{
-       "Now", " ", "use", " ", "the", " ", "nonrelativistic", " ", 
-        "dispersion", " ", "relation", " ", "to", " ", "generate", " ", 
-        "nonrelativistic", " ", "expressions", " ", "for", " ", "the", " ", 
-        "pressure", " ", 
-        RowBox[{"etc", ":"}]}], "*)"}], 
-      RowBox[{"pFermi$NR", "[", 
-       RowBox[{"mu_", ",", "m_"}], "]"}]}], "=", 
-     RowBox[{"Module", "[", 
-      RowBox[{
-       RowBox[{"{", "}"}], ",", 
-       RowBox[{"Sqrt", "[", 
-        RowBox[{"2", " ", "m", 
-         RowBox[{"(", 
-          RowBox[{"mu", "-", "m"}], ")"}]}], "]"}]}], 
-      RowBox[{"(*", 
-       RowBox[{"to", " ", "be", " ", "filled", " ", "in"}], "*)"}], "]"}]}], 
-    ";"}], "\n", 
-   RowBox[{
-    RowBox[{
-     RowBox[{"number$density$NR", "[", 
-      RowBox[{"pF_", ",", "m_"}], "]"}], "=", 
-     RowBox[{"Module", "[", 
-      RowBox[{
-       RowBox[{"{", "}"}], ",", 
-       RowBox[{
-        RowBox[{"pF", "^", "3"}], "/", 
-        RowBox[{"(", 
-         RowBox[{"3", "*", 
-          RowBox[{"Pi", "^", "2"}]}], ")"}]}]}], "]"}]}], ";", 
-    RowBox[{"(*", 
-     RowBox[{"as", " ", "before"}], "*)"}], 
-    RowBox[{
-     RowBox[{"energy$density$NR", "[", 
-      RowBox[{"pF_", ",", "m_"}], "]"}], "=", 
-     RowBox[{"Module", "[", 
-      RowBox[{
-       RowBox[{"{", "}"}], ",", 
-       RowBox[{
-        FractionBox["1", 
-         SuperscriptBox["\[Pi]", "2"]], 
-        RowBox[{"Integrate", "[", 
-         RowBox[{
-          RowBox[{
-           RowBox[{"e$NR", "[", 
-            RowBox[{"p", ",", "m"}], "]"}], 
-           SuperscriptBox["p", "2"]}], ",", 
-          RowBox[{"{", 
-           RowBox[{"p", ",", "0", ",", "pF"}], "}"}], ",", 
-          RowBox[{"Assumptions", "\[Rule]", 
-           RowBox[{"{", 
-            RowBox[{
-             RowBox[{"m", ">", "0"}], " ", ",", 
-             RowBox[{"pF", ">", "0"}]}], "}"}]}]}], "]"}]}]}], 
-      RowBox[{"(*", 
-       RowBox[{"to", " ", "be", " ", "filled", " ", "in"}], "*)"}], "]"}]}], 
-    ";"}], "\n", 
-   RowBox[{
-    RowBox[{
-     RowBox[{"pressure$NR", "[", 
-      RowBox[{"mu_", ",", "m_"}], "]"}], "=", 
-     RowBox[{"Module", "[", 
-      RowBox[{
-       RowBox[{"{", 
-        RowBox[{"pF", "=", 
-         RowBox[{"pFermi$NR", "[", 
-          RowBox[{"mu", ",", "m"}], "]"}]}], "}"}], ",", 
-       RowBox[{"FullSimplify", "[", 
-        RowBox[{
-         RowBox[{"mu", " ", 
-          RowBox[{"number$density$NR", "[", 
-           RowBox[{"pF", ",", "m"}], "]"}]}], "-", 
-         RowBox[{"energy$density$NR", "[", 
-          RowBox[{"pF", ",", "m"}], "]"}]}], "]"}]}], 
-      RowBox[{"(*", 
-       RowBox[{"to", " ", "be", " ", "filled", " ", "in"}], "*)"}], "]"}]}], 
-    ";"}], "\[IndentingNewLine]", "\[IndentingNewLine]", 
-   RowBox[{"(*", 
-    RowBox[{
-     RowBox[{"Use", " ", "the", " ", 
-      RowBox[{"Series", "[", "]"}], " ", "function", " ", "to", " ", "check", 
-      " ", "whether", " ", "the", " ", "nonrelativistic", " ", "pressure", 
-      " ", "agrees", " ", "with", " ", "the", " ", 
-      RowBox[{"pF", "/", "m"}]}], "\[Rule]", 
-     RowBox[{"0", " ", "limit", " ", "of", " ", "the", " ", "general", " ", 
-      RowBox[{"expression", ":"}]}]}], "*)"}], "\n", 
-   RowBox[{
-    RowBox[{"If", "[", 
-     RowBox[{
-      RowBox[{
-       RowBox[{"Refine", "[", 
-        RowBox[{
-         RowBox[{"Normal", "[", 
-          RowBox[{"Series", "[", 
-           RowBox[{
-            RowBox[{"FullSimplify", "[", 
-             RowBox[{"pressure", "[", 
-              RowBox[{
-               RowBox[{"e$1", "[", 
-                RowBox[{"p", ",", "m"}], "]"}], ",", "m"}], "]"}], "]"}], ",", 
-            RowBox[{"{", 
-             RowBox[{"p", ",", "0", ",", "5"}], "}"}]}], "]"}], "]"}], ",", 
-         RowBox[{"m", ">", "0"}]}], "]"}], "==", 
-       RowBox[{"Refine", "[", 
-        RowBox[{
-         RowBox[{"pressure$NR", "[", 
-          RowBox[{
-           RowBox[{"e$NR", "[", 
-            RowBox[{"p", ",", "m"}], "]"}], ",", "m"}], "]"}], ",", 
-         RowBox[{"p", ">", "0"}]}], "]"}]}], 
-      RowBox[{"(*", 
-       RowBox[{"fill", " ", "in", " ", "here"}], "*)"}], 
-      "\[IndentingNewLine]", ",", 
-      RowBox[{
-      "Print", "[", "\"\<Nonrelativistic limit of pressure OK\>\"", "]"}], 
-      ",", 
-      RowBox[{"(*", "else", "*)"}], 
-      RowBox[{
-      "Print", "[", "\"\<**** Nonrelativistic limit of pressure failed!\>\"", 
-       "]"}]}], "]"}], ";"}], "\[IndentingNewLine]", "\[IndentingNewLine]", 
-   RowBox[{"(*", 
-    RowBox[{
-    "Do", " ", "the", " ", "same", " ", "check", " ", "for", " ", "the", " ", 
-     "energy", " ", 
-     RowBox[{"density", ":"}]}], "*)"}], "\n", 
-   RowBox[{
-    RowBox[{"If", "[", 
-     RowBox[{
-      RowBox[{
-       RowBox[{"Refine", "[", 
-        RowBox[{
-         RowBox[{"Normal", "[", 
-          RowBox[{"Series", "[", 
-           RowBox[{
-            RowBox[{"FullSimplify", "[", 
-             RowBox[{"energy$density", "[", 
-              RowBox[{"pF", ",", "m"}], "]"}], "]"}], ",", 
-            RowBox[{"{", 
-             RowBox[{"pF", ",", "0", ",", "5"}], "}"}]}], "]"}], "]"}], ",", 
-         RowBox[{"m", ">", "0"}]}], "]"}], "\[Equal]", 
-       RowBox[{"Expand", "[", 
-        RowBox[{"energy$density$NR", "[", 
-         RowBox[{"pF", ",", "m"}], "]"}], "]"}]}], 
-      RowBox[{"(*", 
-       RowBox[{"fill", " ", "in", " ", "here"}], "*)"}], 
-      "\[IndentingNewLine]", ",", 
-      RowBox[{
-      "Print", "[", "\"\<Nonrelativistic limit of energy density OK\>\"", 
-       "]"}], ",", 
-      RowBox[{"(*", "else", "*)"}], 
-      RowBox[{
-      "Print", "[", 
-       "\"\<**** Nonrelativistic limit of energy density failed!\>\"", 
-       "]"}]}], "]"}], ";"}], "\[IndentingNewLine]", 
-   RowBox[{"(*", 
-    RowBox[{"Finally", ",", 
-     RowBox[{
-     "check", " ", "that", " ", "number$density$NR", " ", "is", " ", "the", 
-      " ", "derivative", " ", "of", " ", "pressure$NR", " ", "with", " ", 
-      "respect", " ", "to", " ", 
-      RowBox[{"mu", ":"}]}]}], "*)"}], "\[IndentingNewLine]", "\n", 
-   RowBox[{
-    RowBox[{"If", "[", 
-     RowBox[{
-      RowBox[{
-       RowBox[{
-        RowBox[{"D", "[", 
-         RowBox[{
-          RowBox[{"Refine", "[", 
-           RowBox[{
-            RowBox[{"pressure$NR", "[", 
-             RowBox[{
-              RowBox[{"e$NR", "[", 
-               RowBox[{"p", ",", "m"}], "]"}], ",", "m"}], "]"}], ",", 
-            RowBox[{"p", ">", "0"}]}], "]"}], ",", "p"}], "]"}], "/", 
-        RowBox[{"D", "[", 
-         RowBox[{
-          RowBox[{"e$NR", "[", 
-           RowBox[{"p", ",", "m"}], "]"}], ",", "p"}], "]"}]}], "==", 
-       RowBox[{"number$density$NR", "[", 
-        RowBox[{"p", ",", "m"}], "]"}]}], 
-      RowBox[{"(*", 
-       RowBox[{"fill", " ", "in", " ", "here"}], "*)"}], 
-      "\[IndentingNewLine]", ",", 
-      RowBox[{
-      "Print", "[", "\"\<Nonrelativistic d p / d mu == n   OK\>\"", "]"}], 
-      ",", 
-      RowBox[{"(*", "else", "*)"}], 
-      RowBox[{
-      "Print", "[", "\"\<**** Nonrelativistic d p / d mu == n failed\>\"", 
-       "]"}]}], "]"}], ";"}], "\[IndentingNewLine]", "\[IndentingNewLine]", 
-   "\[IndentingNewLine]", "\n", 
-   RowBox[{"(*", 
-    RowBox[{
-     RowBox[{
-      RowBox[{
-       RowBox[{
-        RowBox[{
-         RowBox[{
-          RowBox[{
-           RowBox[{
-            RowBox[{"--", 
-             RowBox[{"--", 
-              RowBox[{"--", 
-               RowBox[{"--", 
-                RowBox[{"--", 
-                 RowBox[{"--", 
-                  RowBox[{"--", 
-                   RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{
-                    "--", "To"}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]\
-}]}]}]}]}]}]}]}]}]}]}], " ", "save", " ", "a", " ", "notebook", " ", "as", 
-            " ", 
-            RowBox[{"a", ".", "m"}], " ", "file"}], ",", "1"}], ")"}], " ", 
-         RowBox[{"Preparation", ":", 
-          RowBox[{
-          "For", " ", "every", " ", "cell", " ", "that", " ", "you", " ", 
-           "want", " ", "to", " ", "save", " ", "to", " ", 
-           RowBox[{"the", ".", "m"}], " ", "file"}]}]}], ",", 
-        RowBox[{
-        "move", " ", "the", " ", "cursor", " ", "to", " ", "the", " ", 
-         "right", " ", "hand", " ", "edge", " ", "of", " ", "the", " ", 
-         "cell", " ", 
-         RowBox[{"(", 
-          RowBox[{
-          "in", " ", "the", " ", "\"\<square bracket\>\"", " ", "region", " ",
-            "where", " ", "the", " ", "cursor", " ", "becomes", " ", "an", 
-           " ", "arrow", " ", "pointing", " ", "to", " ", "the", " ", 
-           "left"}], ")"}]}], ",", 
-        RowBox[{"right", " ", "click"}], ",", 
-        RowBox[{
-        "and", " ", "then", " ", "click", " ", "on", " ", "the", " ", 
-         "\"\<Initialization Cell\>\"", " ", 
-         RowBox[{"button", ".", "Just"}], " ", "do", " ", "this", " ", "for", 
-         " ", "definitions", " ", "and", " ", "evaluations", " ", "of", " ", 
-         RowBox[{"expressions", ".", 
-          RowBox[{"Don", "'"}]}], "t", " ", "save", " ", "graphics", " ", 
-         "cells"}], ",", 
-        RowBox[{
-        "since", " ", "they", " ", "will", " ", "be", " ", "regenerated", " ",
-          "when", " ", 
-         RowBox[{"the", ".", "m"}], " ", "file", " ", "is", " ", "imported", 
-         " ", "into", " ", 
-         RowBox[{"mathematica", ".", "2"}]}]}], ")"}], " ", 
-      RowBox[{"Saving", ":", "File"}]}], "\[Rule]", 
-     RowBox[{
-     "Save", " ", "As", " ", "under", " ", "\"\<Files of Type:\>\"", " ", 
-      "select", " ", "Mathematica", " ", "Package"}]}], " ", "*)"}], 
-   RowBox[{"(*", 
-    RowBox[{
-     RowBox[{
-      RowBox[{
-       RowBox[{
-        RowBox[{
-         RowBox[{".", "m"}], ")"}], " ", "give", " ", "the", " ", "file", " ",
-         "a", " ", "name", " ", "and", " ", "save", " ", "it", " ", "3"}], 
-       ")"}], " ", 
-      RowBox[{"Checking", ":", 
-       RowBox[{"Quit", " ", "mathematica", " ", "and", " ", "restart", " ", 
-        RowBox[{"it", ".", "File"}]}]}]}], "\[Rule]", 
-     RowBox[{"Open", "\[Rule]", 
-      RowBox[{"select", " ", 
-       RowBox[{"the", ".", "m"}], " ", "file", " ", "you", " ", "just", " ", 
-       "created", " ", "and", " ", "open", " ", "it", " ", "Go", " ", 
-       "through", " ", "the", " ", "initialization", " ", "cells", " ", 
-       "evaluating", " ", "them", " ", "and", " ", "making", " ", "sure", " ",
-        "that", " ", "they", " ", "work", " ", 
-       RowBox[{"OK", ".", 
-        RowBox[{"--", 
-         RowBox[{"--", 
-          RowBox[{"--", 
-           RowBox[{"--", 
-            RowBox[{"--", 
-             RowBox[{"--", 
-              RowBox[{"--", 
-               RowBox[{"--", 
-                RowBox[{"--", 
-                 RowBox[{"--", 
-                  RowBox[{"--", 
-                   RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{"--", 
-                    RowBox[{
-                    "--", "--"}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]}]\
-}]}]}]}]}]}]}]}]}]}]}]}]}]}], "*)"}]}]}]], "Input",
- InitializationCell->True,
- CellChangeTimes->{{3.6675794959797153`*^9, 3.6675794959797153`*^9}, 
-   3.6675812291745853`*^9, {3.6675812696380467`*^9, 3.6675813821924567`*^9}, {
-   3.667581432342346*^9, 3.667581576586879*^9}, {3.667581868960602*^9, 
-   3.6675818792731915`*^9}, {3.6675819451539593`*^9, 3.667581947729107*^9}, {
-   3.667581995998868*^9, 3.66758201106973*^9}, 3.6675824499888344`*^9, {
-   3.667582560454153*^9, 3.6675825644523816`*^9}, {3.667582738999365*^9, 
-   3.667582839005085*^9}, {3.6675832219529886`*^9, 3.667583234266693*^9}, {
-   3.6677299292784476`*^9, 3.6677299349930573`*^9}, {3.6677299829426427`*^9, 
-   3.6677299930664606`*^9}, 3.667730219818363*^9, {3.6677305046939774`*^9, 
-   3.667730521445408*^9}, {3.6677305567183704`*^9, 3.6677305926228337`*^9}, {
-   3.6677306282127967`*^9, 3.667730634563908*^9}, {3.667730670394772*^9, 
-   3.6677306868703012`*^9}, {3.6677307189889584`*^9, 
-   3.6677307498590136`*^9}, {3.6677308615105114`*^9, 3.667730871530729*^9}, {
-   3.6677310636455708`*^9, 3.6677310709825835`*^9}, {3.667731181978981*^9, 
-   3.6677311899293957`*^9}, {3.6677312717272406`*^9, 
-   3.6677312980000877`*^9}, {3.6677313716390195`*^9, 3.6677313886374497`*^9}, 
-   3.66773143860154*^9, {3.667731469005394*^9, 3.6677314870364265`*^9}, {
-   3.6677315462675323`*^9, 3.667731546969534*^9}, {3.667731579626193*^9, 
-   3.667731593657618*^9}, {3.6677316439311094`*^9, 3.6677316559959307`*^9}, {
-   3.6677317399673414`*^9, 3.667731822595298*^9}, 3.667732479155819*^9, {
-   3.667732632472294*^9, 3.6677326922216015`*^9}, {3.6677327321902723`*^9, 
-   3.6677327731487455`*^9}, 3.6677328186682377`*^9, {3.6677328605345125`*^9, 
-   3.6677329296278358`*^9}, {3.66773297711672*^9, 3.6677329904617443`*^9}, {
-   3.6677331601100464`*^9, 3.6677331729910693`*^9}, {3.66773321228234*^9, 
-   3.667733214778344*^9}, {3.6677337950662947`*^9, 3.667733810677323*^9}, {
-   3.667738200303664*^9, 3.6677382038048644`*^9}, 3.667738728643472*^9, 
-   3.667738792904188*^9, {3.667738860576115*^9, 3.667738910458804*^9}, 
-   3.667739364352027*^9, {3.66773988762996*^9, 3.667739888132989*^9}, {
-   3.6679243246848373`*^9, 3.667924325698839*^9}, {3.6679244511544704`*^9, 
-   3.6679244606900873`*^9}, 3.6679246806805673`*^9, {3.667924876766118*^9, 
-   3.6679249044725685`*^9}, {3.667925574294178*^9, 3.66792558092619*^9}, {
-   3.6679256305018787`*^9, 3.6679256685713468`*^9}, 3.6679294968369417`*^9, {
-   3.668173145513712*^9, 
-   3.668173234630809*^9}},ExpressionUUID->"429e3404-6be6-4ae2-88d9-\
-21d5007fab1a"],
+(*Some physical constants:*)
 
-Cell[BoxData[
- GraphicsBox[{{{}, {}, 
-    TagBox[
-     {RGBColor[0.368417, 0.506779, 0.709798], AbsoluteThickness[1.6], Opacity[
-      1.], LineBox[CompressedData["
-1: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
-0U8SYe4r/9tn0P/3mf8AujttcA==
-       "]]},
-     Annotation[#, "Charting`Private`Tag$30635#1"]& ]}, {}, {}},
-  AspectRatio->NCache[GoldenRatio^(-1), 0.6180339887498948],
-  Axes->{True, True},
-  AxesLabel->{None, None},
-  AxesOrigin->{0, 0},
-  DisplayFunction->Identity,
-  Frame->{{False, False}, {False, False}},
-  FrameLabel->{{None, None}, {None, None}},
-  FrameTicks->{{Automatic, 
-     Charting`ScaledFrameTicks[{Identity, Identity}]}, {Automatic, 
-     Charting`ScaledFrameTicks[{Identity, Identity}]}},
-  GridLines->{None, None},
-  GridLinesStyle->Directive[
-    GrayLevel[0.5, 0.4]],
-  ImagePadding->All,
-  Method->{
-   "DefaultBoundaryStyle" -> Automatic, "DefaultMeshStyle" -> 
-    AbsolutePointSize[6], "ScalingFunctions" -> None, 
-    "CoordinatesToolOptions" -> {"DisplayFunction" -> ({
-        (Identity[#]& )[
-         Part[#, 1]], 
-        (Identity[#]& )[
-         Part[#, 2]]}& ), "CopiedValueFunction" -> ({
-        (Identity[#]& )[
-         Part[#, 1]], 
-        (Identity[#]& )[
-         Part[#, 2]]}& )}},
-  PlotRange->{{-5, 5}, {0., 5.025942494615683}},
-  PlotRangeClipping->True,
-  PlotRangePadding->{{
-     Scaled[0.02], 
-     Scaled[0.02]}, {
-     Scaled[0.05], 
-     Scaled[0.05]}},
-  Ticks->{Automatic, Automatic}]], "Output",
- CellChangeTimes->{{3.6679255366243105`*^9, 3.6679255845327964`*^9}, {
-   3.6679256343726854`*^9, 3.667925659690931*^9}, 3.6679294887999277`*^9, {
-   3.668173239270074*^9, 3.6681732420902357`*^9}, {3.7267546647413044`*^9, 
-   3.7267546718707123`*^9}},ExpressionUUID->"3c10a404-6875-4353-b3af-\
-bddd393f254a"],
+MeV$fm = 197.326960;(*For converting MeV to fm^-1 and vice \
+versa*)(*so 1fm=1/200=0.005 MeV^-1*)Mneutron = 939.565378;(*All \
+quantities will be in MeV*)Mproton = 938.272013;
+Melectron = 0.51100;
+mass$rules = {m$p -> Mproton, m$n -> Mneutron, m$e -> Melectron};
+(*In our functions we will write the masses of the particles as \
+m$p,m$n,m$e,and when we want to obtain numbers we will apply \
+mass$rules*)
 
-Cell[CellGroupData[{
+alpha = 1/
+  137.0;(*fine structure constant:coupling strength of \
+electromagnetism*)(*We model nuclear matter as a gas of \
+noninteracting neutrons,protons,and electrons.Create a function that \
+calculates the pressure of such a gas as a function of separate \
+chemical potentials for these particles:*)
+pressure$NM[mu$p_, mu$n_, mu$e_] = 
+ Module[{}, 
+  pressure$NR[mu$p, m$p] + pressure$NR[mu$n, mm$n] + 
+   pressure[mu$e, m$e](*assume m$p,m$n,m$e are global variables,
+  and that neutrons and protons are nonrelativistic,
+  but electrons are relativistic*)];
 
-Cell[BoxData["\<\"d e / d n == mu   OK\"\>"], "Print",
- CellChangeTimes->{{3.667925537903513*^9, 3.667925585798399*^9}, {
-   3.6679256356206875`*^9, 3.6679256609565334`*^9}, 3.66792949007913*^9, {
-   3.6681732405131454`*^9, 3.668173243341307*^9}, {3.726754668137499*^9, 
-   3.726754674322852*^9}},ExpressionUUID->"d0b33796-234d-441b-a829-\
-d7bc800085fd"],
+(*In "beta-equilibrated" nuclear matter,the weak interactions have \
+allowed neutrons to convert to protons and vice versa,so \
+mu$n=mu$p+mu$e in beta-equilibrium.Create functions that give the \
+pressure,charge density,and nucleon density of beta-equilibrated \
+nuclear matter.*)
 
-Cell[BoxData[
- InterpretationBox[
-  RowBox[{"\<\"electron pressure at mu=4MeV is: \"\>", "\[InvisibleSpace]", 
-   "2.059104127319969`", "\[InvisibleSpace]", "\<\" MeV^4\"\>"}],
-  SequenceForm[
-  "electron pressure at mu=4MeV is: ", 2.059104127319969, " MeV^4"],
-  Editable->False]], "Print",
- CellChangeTimes->{{3.667925537903513*^9, 3.667925585798399*^9}, {
-   3.6679256356206875`*^9, 3.6679256609565334`*^9}, 3.66792949007913*^9, {
-   3.6681732405131454`*^9, 3.668173243341307*^9}, {3.726754668137499*^9, 
-   3.7267546743408537`*^9}},ExpressionUUID->"250bab4e-e042-4ae0-af05-\
-5203fd65c1b2"],
+pressure$NM$beta[mu$n_, mu$e_] = 
+  Module[{}, 
+   pressure$NR[mu$n - mu$e, m$p] + pressure$NR[mu$n, m$n] + 
+    pressure[mu$e, m$e]];
+charge$density$NM$beta[mu$n_, mu$e_] = 
+  Module[{}, 
+   FullSimplify[-D[pressure$NM$beta[mu$n, mu$e], 
+      mu$e]](*use a suitable derivative of the appropriate pressure \
+function Note that elec charge is
+   -d p/d mu$e because mu$e is the chemical potential for negative \
+charge*)];
 
-Cell[BoxData["\<\"d p / d mu == n   OK\"\>"], "Print",
- CellChangeTimes->{{3.667925537903513*^9, 3.667925585798399*^9}, {
-   3.6679256356206875`*^9, 3.6679256609565334`*^9}, 3.66792949007913*^9, {
-   3.6681732405131454`*^9, 3.668173243341307*^9}, {3.726754668137499*^9, 
-   3.7267546743718553`*^9}},ExpressionUUID->"178d3381-59f6-478e-b11d-\
-31597018ab37"]
-}, Open  ]],
+nucleon$density$NM$beta[mu$n_, mu$e_] = 
+  Module[{}, 
+   FullSimplify[
+    D[pressure$NM$beta[mu$n, mu$e], 
+     mu$n]](*use a suitable derivative of the appropriate pressure \
+function*)];
+charge$density$NM[mu$p_, mu$n_, mu$e_] = 
+  Module[{}, 
+   FullSimplify[
+    D[pressure$NM[mu$p, mu$n, mu$e], mu$p] - 
+     D[pressure$NM[mu$p, mu$n, mu$e], mu$e]]];
+(*make an alternate definition of charge density:proton density minus \
+electron density*)
+charge$density$NM$alt[mu$n_, mu$e_] = 
+  Module[{mu$p = mu$n - mu$e}, 
+   charge$density$NM[mu$p, mu$n, mu$e](*to be filled in*)];
 
-Cell[BoxData[
- GraphicsBox[{{{}, {}, 
-    TagBox[
-     {RGBColor[0.368417, 0.506779, 0.709798], AbsoluteThickness[1.6], Opacity[
-      1.], LineBox[CompressedData["
-1:eJxF1O0vFAAcwPG74xhxL7rO1tku7nba0fQwT3MqTDFjxSHWVbccye6mmTw1
-mkZcoZuhOi21PBNJWapDXDqTTrFMGi4x5yHGdWd3nGrrfr8X333+g6/zxZTI
-BBKBQAj/2z/j26SrOzvWvWb3GOku3C1UcbKWn76Jukx1DS6voYt2s08m1OiV
-ZM/Yjn40l/2tN7EQlVWxyoYpaPV0UUqEjRXoMMI7xaGRQeVpXtAQ2xIM4bDT
-WEwL0LeVX6c6SAINtxKpRzhE8Le+puL8fgKoYJZ5dItNPWa55OsdbsItsNzf
-2zsgxwDGP4idW6zeBFX1DBuiTAcy7J4d7unUgrZO8ypN0zooiiq419CwBgr6
-p4cYZSsg86gp4n2eBmxM6lC/6ZwDkzfa+bdlatA9lxxnxZoEqVljuyqrRsFx
-oci1bXYAzMh2LR2saAWb7vj41xx6etxs6eW8r4IbH0B7bRi3JWIUnEkb8EjP
-nwR/dYX3ZSjVYF3hY4FQMgeydc3UzCoNOPV8n5ybtAJG350pWpKugQ9ri+Vh
-leug5VnxCjlLC34SNNZH5uvAl/b0c3rRJugic16wDjOAhvT87WbeFrhkcKQ0
-+JjAR5cKxxxZBH+z0oCPxXvZRJCS0hzYTyOB3UGv5J10C3BbfMErhmIJEq2/
-3HfbRr1CUvtCCVag4XvLAm0dDRIppeE6tMQ461NgQJ3ojhItyRoMPiPhjFLR
-8s8JyVJP1H2AsWybhWZG+5YH5qDvfkb7ZeehURYlxRoJes3feEApQ5Wvx8UF
-b9HdoRs0eS/Kn6B0axXoqv4ERTiMOni+aA2cQgUKVUz2D7SRt2Rqn0f9Upmn
-nFfRm8Rj+tgNdEQaVy3Vo3Snq8FKI/r/W+AfYipULQ==
-       "]]},
-     Annotation[#, "Charting`Private`Tag$31470#1"]& ], 
-    TagBox[
-     {RGBColor[0.880722, 0.611041, 0.142051], AbsoluteThickness[1.6], Opacity[
-      1.], LineBox[CompressedData["
-1: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
-f/0b+n//9h/X5c+q
-       "]]},
-     Annotation[#, "Charting`Private`Tag$31470#2"]& ]}, {}, {}},
-  AspectRatio->NCache[GoldenRatio^(-1), 0.6180339887498948],
-  Axes->{True, True},
-  AxesLabel->{None, None},
-  AxesOrigin->{0, 0},
-  DisplayFunction->Identity,
-  Frame->{{False, False}, {False, False}},
-  FrameLabel->{{None, None}, {None, None}},
-  FrameTicks->{{Automatic, 
-     Charting`ScaledFrameTicks[{Identity, Identity}]}, {Automatic, 
-     Charting`ScaledFrameTicks[{Identity, Identity}]}},
-  GridLines->{None, None},
-  GridLinesStyle->Directive[
-    GrayLevel[0.5, 0.4]],
-  ImagePadding->All,
-  Method->{
-   "DefaultBoundaryStyle" -> Automatic, "DefaultMeshStyle" -> 
-    AbsolutePointSize[6], "ScalingFunctions" -> None, 
-    "CoordinatesToolOptions" -> {"DisplayFunction" -> ({
-        (Identity[#]& )[
-         Part[#, 1]], 
-        (Identity[#]& )[
-         Part[#, 2]]}& ), "CopiedValueFunction" -> ({
-        (Identity[#]& )[
-         Part[#, 1]], 
-        (Identity[#]& )[
-         Part[#, 2]]}& )}},
-  PlotRange->{{-3, 3}, {-2.9999998775510206`, 3.043041121198683}},
-  PlotRangeClipping->True,
-  PlotRangePadding->{{
-     Scaled[0.02], 
-     Scaled[0.02]}, {
-     Scaled[0.05], 
-     Scaled[0.05]}},
-  Ticks->{Automatic, Automatic}]], "Output",
- CellChangeTimes->{{3.6679255366243105`*^9, 3.6679255845327964`*^9}, {
-   3.6679256343726854`*^9, 3.667925659690931*^9}, 3.6679294887999277`*^9, {
-   3.668173239270074*^9, 3.6681732420902357`*^9}, {3.7267546647413044`*^9, 
-   3.726754674414858*^9}},ExpressionUUID->"1665e1f1-610e-4eb1-98f8-\
-afa43282939b"],
+(*Run the following code,which checks that the two charge density \
+functions agree by plugging in numbers for mu$n and mu$e and applying \
+mass$rules:*)
 
-Cell[CellGroupData[{
+Print["charge density at mu_n=1200, mu_e = 100.0:   ", 
+  CForm[SetPrecision[
+    charge$density$NM$beta[1200.0, 100.0] /. mass$rules, 5]], 
+  " MeV^3"];
+Print["charge density in protons and electrons: ", 
+  CForm[SetPrecision[
+    charge$density$NM$alt[1200.0, 100.0] /. mass$rules, 5]], " MeV^3"];
+Print["charge density discrepancy: ", 
+  CForm[SetPrecision[(charge$density$NM$beta[1200.0, 100.0] - 
+       charge$density$NM$alt[1200.0, 100.0]) /. mass$rules, 5]], 
+  " MeV^3"];
 
-Cell[BoxData["\<\"Ultrarelativistic limit of pressure OK\"\>"], "Print",
- CellChangeTimes->{{3.667925537903513*^9, 3.667925585798399*^9}, {
-   3.6679256356206875`*^9, 3.6679256609565334`*^9}, 3.66792949007913*^9, {
-   3.6681732405131454`*^9, 3.668173243341307*^9}, {3.726754668137499*^9, 
-   3.726754674424858*^9}},ExpressionUUID->"123f6a48-9fad-4d6a-bc2c-\
-56a4f6d6ccac"],
+(*Check that the difference between the two functions simplifies \
+algebraically to zero*)
+If[(*fill in here*)
+  FullSimplify[
+    charge$density$NM$alt[mu$n, mu$e] - 
+     charge$density$NM$alt[mu$n, mu$e]] == 0
+  , Print["charge density == protons - electrons  OK"],(*else*)
+  Print["**** charge density == protons - electrons failed!"]];
 
-Cell[BoxData["\<\"Nonrelativistic limit of energy density OK\"\>"], "Print",
- CellChangeTimes->{{3.667925537903513*^9, 3.667925585798399*^9}, {
-   3.6679256356206875`*^9, 3.6679256609565334`*^9}, 3.66792949007913*^9, {
-   3.6681732405131454`*^9, 3.668173243341307*^9}, {3.726754668137499*^9, 
-   3.726754676087953*^9}},ExpressionUUID->"d4e500bd-847c-4fca-a908-\
-82e7bac1017b"],
 
-Cell[BoxData["\<\"Nonrelativistic d p / d mu == n   OK\"\>"], "Print",
- CellChangeTimes->{{3.667925537903513*^9, 3.667925585798399*^9}, {
-   3.6679256356206875`*^9, 3.6679256609565334`*^9}, 3.66792949007913*^9, {
-   3.6681732405131454`*^9, 3.668173243341307*^9}, {3.726754668137499*^9, 
-   3.726754676109955*^9}},ExpressionUUID->"4272fe9a-0b82-4963-a761-\
-7f056ec045b6"]
-}, Open  ]]
-}, Open  ]],
 
-Cell[BoxData[""], "Input",
- CellChangeTimes->{{3.667579570134713*^9, 3.6675795753008223`*^9}, {
-  3.667738103456125*^9, 
-  3.667738103880149*^9}},ExpressionUUID->"b246a3cd-243a-4bdc-b20d-\
-9cccb6ce4c8e"]
-},
-WindowSize->{1350, 686},
-WindowMargins->{{-8, Automatic}, {Automatic, 0}},
-FrontEndVersion->"11.2 for Microsoft Windows (64-bit) (September 10, 2017)",
-StyleDefinitions->"Default.nb"
-]
-(* End of Notebook Content *)
+(*EXTRA CREDIT:charge$density$NM$alt is a simpler expression than \
+charge$density$NM$beta.Can you get Mathematica to simplify \
+charge$density$NM$beta so that it looks the same as \
+charge$density$NM$alt?I couldn't manage it.*)
 
-(* Internal cache information *)
-(*CellTagsOutline
-CellTagsIndex->{}
-*)
-(*CellTagsIndex
-CellTagsIndex->{}
-*)
-(*NotebookFileOutline
-Notebook[{
-Cell[CellGroupData[{
-Cell[580, 22, 32181, 826, 1750, "Input",ExpressionUUID->"429e3404-6be6-4ae2-88d9-21d5007fab1a",
- InitializationCell->True],
-Cell[32764, 850, 6058, 117, 245, "Output",ExpressionUUID->"3c10a404-6875-4353-b3af-bddd393f254a"],
-Cell[CellGroupData[{
-Cell[38847, 971, 354, 5, 22, "Print",ExpressionUUID->"d0b33796-234d-441b-a829-d7bc800085fd"],
-Cell[39204, 978, 593, 11, 22, "Print",ExpressionUUID->"250bab4e-e042-4ae0-af05-5203fd65c1b2"],
-Cell[39800, 991, 356, 5, 22, "Print",ExpressionUUID->"178d3381-59f6-478e-b11d-31597018ab37"]
-}, Open  ]],
-Cell[40171, 999, 7464, 142, 240, "Output",ExpressionUUID->"1665e1f1-610e-4eb1-98f8-afa43282939b"],
-Cell[CellGroupData[{
-Cell[47660, 1145, 372, 5, 22, "Print",ExpressionUUID->"123f6a48-9fad-4d6a-bc2c-56a4f6d6ccac"],
-Cell[48035, 1152, 376, 5, 22, "Print",ExpressionUUID->"d4e500bd-847c-4fca-a908-82e7bac1017b"],
-Cell[48414, 1159, 370, 5, 22, "Print",ExpressionUUID->"4272fe9a-0b82-4963-a761-7f056ec045b6"]
-}, Open  ]]
-}, Open  ]],
-Cell[48811, 1168, 203, 4, 28, "Input",ExpressionUUID->"b246a3cd-243a-4bdc-b20d-9cccb6ce4c8e"]
-}
-]
-*)
+
+(*Now impose electrical neutrality:the electric charge density should \
+be zero in large volumes of beta-equilibrated nuclear matter.This \
+requirement determines mu$e as a function of mu$n:*)
+
+mu$e$neutral[mu$n_] = 
+  Module[{}, 
+   soln = Solve[charge$density$NM$alt[mu$n, mu$e] == 0, 
+     mu$e(*calculate what value of the electron chem pot gives zero \
+charge density*)]];
+mu$e$neutral[mu$n_] = mu$e /. soln[[2]]
+
+(*Use this to write the pressure and nucleon density of neutral \
+beta-equilibrated nuclear matter as a function of mu$n only:*)
+
+pressure$NM$beta$neutral[mu$n_] = 
+  Module[{mu$e = mu$e$neutral[mu$n]}, 
+   FullSimplify[pressure$NM$beta[mu$n, mu$e]]];(*to be filled in*)
+nucleon$density$NM$beta$neutral[mu$n_] = 
+ Module[{mu$e = mu$e$neutral[mu$n]}, 
+  FullSimplify[
+   nucleon$density$NM$beta[mu$n, 
+    mu$e]]];(*to be filled in*)(*This code checks that for \
+neutral,beta-equilibrated nuclear matter,the nucleon density agrees \
+with the appropriate derivative of the pressure,by plugging in \
+numbers:*)Print["neutral beta-equil nucleon density at mu_n=1200:  ", 
+ CForm[SetPrecision[
+   nucleon$density$NM$beta$neutral[1200.0] /. mass$rules, 
+   8]], " MeV^3"];
+Print["neutral beta-equil pressure deriv  at mu_n=1200:  ", 
+  CForm[SetPrecision[
+    D[pressure$NM$beta$neutral[mu$n], mu$n] /. {mu$n -> 1200.0} /. 
+     mass$rules, 8]], " MeV^3"];
+
+(*EXTRA CREDIT:Can you show that the two expressions are \
+algebraically identical?I couldn't manage it using \
+Simplify:If[FullSimplify[nucleon$density$NM$beta$neutral[mu$n]-D[\
+pressure$NM$beta$neutral[mu$n],mu$n],{m$n>m$p+m$e,m$p>0,m$e>0,mu$n>m$\
+n}]\[Equal]0,Print["neutral beta-equil nucleon density == deriv of \
+pressure OK"],Print["**** neutral beta-equil nucleon density == deriv \
+of pressure failed!"]];*)
+
+(*Now we start putting in numbers to apply this simple model to \
+real-world nuclei.The nucleon density of nuclei is 0.16 nucleons per \
+fm^3. But we will express everything in MeV,so we need to convert \
+that to MeV^3:*)
+
+nucleon$density$expt = 0.16*MeV$fm^3;
+
+(*Plot the nucleon density of neutral beta-equilibrated nuclear \
+matter,converted to fm^-3,as a function of mu$n,over a reasonable \
+range of values of mu$n,to see roughly where it has the physical \
+value of 0.16 nucleons/fm^3*)
+legend1 = 
+  Grid[{{Graphics[{Blue, Disk[{0, 0}, 0.1]}, ImageSize -> 5], 
+     "NucleonDensity[mu$n]"}}];
+Plot[nucleon$density$NM$beta$neutral[mu] /. mass$rules, {mu, 970, 
+  1020}, PlotLegends -> legend1]
+(*Use FindRoot to obtain the value of mu$n at which our free nucleon \
+gas has the density of real nuclear matter.Use mass$rules to give the \
+particles their physical mass values.*)
+nucleon$density$NM$beta$neutral$soln[mu$n0_] = 
+  nucleon$density$NM$beta$neutral[mu$n0] /. mass$rules ;
+mu$n$NM = 
+ mu$n0 /. FindRoot[
+   nucleon$density$NM$beta$neutral$soln[mu$n0] == 
+    nucleon$density$expt, {mu$n0, 
+    970}](*to be filled in.Note that this is a calculation of a \
+number,not a function definition.*)
+Print["neutral beta-equil nuclear matter: mu_n = ", mu$n$NM, " MeV"];
+
+(*Print out the value of mu$e in neutral beta-equilibrated nuclear \
+matter at nuclear density*)
+
+Print["neutral beta-equil nuclear matter: mu_e = ", 
+  mu$e$neutral[mu$n$NM] /. mass$rules(*to be filled in*), " MeV"];
+
+
+(*Write a function that estimates the radius (in MeV^-1) of a nucleus \
+of atomic mass number (total number of nucleons) A,assuming that the \
+nucleus is a sphere with nucleon density nucleon$density$expt.*)
+
+nuclear$radius[A_] = 
+  Module[{}, (3 A/(4 \[Pi]*nucleon$density$expt))^(
+   1/3)(*to be filled in*)];
+
+
+(*Now we estimate the expected radius of a Lead nucleus Z=82,A=207,in \
+MeV and fm*)
+
+Z$Lead = 82;
+A$Lead = 207;
+R$Lead = nuclear$radius[A$Lead];
+R$Lead$fm = R$Lead*MeV$fm;
+
+Print["Estimated radius of Lead nucleus is ", R$Lead, " MeV^-1  =  ", 
+  R$Lead$fm, " fm"];
+
+
+(*Finally,we will try to estimate the charge distribution of a \
+nucleus of charge Z and radius R.We treat the nucleus as a sphere of \
+nuclear matter in which mu$e is different from its neutrality \
+value,but mu$n stays at mu$n$NM.We use the Thomas-Fermi method:solve \
+the self-consistent Poisson equation to get mu$e$nucleus[Z,R,r] and \
+charge$density$nucleus[Z,R,r] with boundary conditions mu$e'[0]\
+\[Equal]0 (no charge at center) mu$e[R]\[Equal]Z*alpha/R (match to \
+Coulomb potl in vacuum,ignoring electron cloud outside nucleus for \
+now) Shooting method:choose mu$e[0] and evolve to R,varying mue[0] \
+until it obeys the BC at R.*)
+
+r$center = 
+ 0.01/MeV$fm;(*diffeq has 1/r^2 in it,so start at r just above 0*)
+Evolve$mu$e[Z_?NumericQ, R_?NumericQ, mue$center_?NumericQ] := 
+ Module[{}, 
+  NDSolve[{(mu$e$nucleus''[r] + (2/r) mu$e$nucleus'[r] + 
+        4*Pi *alpha * 
+         charge$density$NM$alt[mu$n$NM, mu$e$nucleus[r]] /. 
+       mass$rules) == 0, mu$e$nucleus[r$center] == mue$center, 
+    mu$e$nucleus'[r$center] == 0}, 
+   mu$e$nucleus[r], {r, r$center, R}](*solve the diffeq for mu$e[
+  r$center]\[Equal]mue$center,
+  and return the result as an InterpolatingFunction*)];
+(*Write a function to calculate and plot mu$e[r] for a nucleus of \
+given charge Z and radius R,with a given guess for mue$center*)
+legend2 = 
+  Grid[{{Graphics[{Blue, Disk[{0, 0}, 0.1]}, ImageSize -> 5], 
+     "mu$e$nucleus[r]"}}];
+make$mue$plot[Z_?NumericQ, R_?NumericQ, mue$center_?NumericQ] := 
+  Module[{}, mue = Evolve$mu$e[Z, R, mue$center];(*to be filled in*)
+   Show[Plot[
+     Evaluate[
+      Evolve$mu$e[Z, R, mue$center] /. mue](*to be filled in*), {r, 
+      r$center, R}, PlotLegends -> legend2]]];
+(*Call this function to make a plot of mu$e(r) for a Lead nucleus \
+with mu$e=40MeV at the center.Note how mu$e varies with r.*)
+
+make$mue$plot[Z$Lead, R$Lead, 40.0]
+
+(*We need to choose mu$e(r$center) so that at r=R mu$e agrees with \
+the external Coulonb field of a nucleus of charge Z,which varies with \
+radius as Z*alpha/r.To do this,first create a function that uses \
+Evolve$mu$e to calculate mu$e at the edge of a nucleus of given \
+charge,radius,and central mu$e:*)
+
+mu$e$at$R[Z_?NumericQ, R_?NumericQ, mue$center_?NumericQ] := 
+  Module[{}, 
+   NDSolveValue[{(mu$e$nucleus''[r] + (2/r) mu$e$nucleus'[r] + 
+         4*Pi *alpha * 
+          charge$density$NM$alt[mu$n$NM, mu$e$nucleus[r]] /. 
+        mass$rules) == 0, mu$e$nucleus[r$center] == mue$center, 
+     mu$e$nucleus'[r$center] == 0}, 
+    mu$e$nucleus[R], {r, r$center, R}](*to be filled in*)];
+
+(*Try it out for a Lead nucleus.First evaluate the external Coulomb \
+field Z*alpha/R at the edge of a Lead nucleus,then evaluate \
+mu$e$at$R[...] for a Lead nucleus with different values of \
+mu$e$center,and see roughly what value of mu$e$center will lead to \
+agreement.*)
+
+Print["Z alpha / R for Lead = ", (Z$Lead*alpha)/
+   R$Lead(*to be filled in*), " MeV"];
+
+Print["For Lead with mu_e(0) = ", 39(*fill in a value of mu$e$center*),
+   " MeV,", "  mu_e(R)= ", mu$e$at$R[Z$Lead, R$Lead, 39](*fill in*), 
+  " MeV"];
+Print["For Lead with mu_e(0) = ", 25(*fill in a value of mu$e$center*),
+   " MeV,", "  mu_e(R)= ", 
+  mu$e$at$R[Z$Lead, R$Lead, 37.90412](*fill in*), " MeV"];
+
+
+(*Write a function that solves for the correct value of mu$e at r=0 \
+in a nucleus of any Z and R.Use FindRoot,and use the results of your \
+numerical calculation for Lead to choose a reasonable starting range \
+for mu$e at r=0.*)
+
+
+mu$e$center[Z_?NumericQ, R_?NumericQ] := 
+  Module[{},(*to be filled in*)
+   mu$e$at$R$alt /. 
+    FindRoot [
+     mu$e$at$R[Z, R, mu$e$at$R$alt] - 
+      Z$Lead*alpha/R$Lead, {mu$e$at$R$alt, 25}]];
+
+(*Use the mu$e$center function to find out what mu$e is in the center \
+of a Lead nucleus:*)
+
+Print["For Lead, mu_e(r=0) = ", mu$e$center[Z$Lead, R$Lead], " MeV"];
+
+(*Create a function that calculates mu$e[r] inside a nucleus of \
+charge Z and radius R.It will use Evolve$mu$e to create the \
+InterpolatingFunction,and it will use mu$e$center to choose the \
+central value of mu$e as an initial condition for Evolve$mu$e,It will \
+return mu$e[r] as an InterpolatingFunction*)
+
+mu$e$of$r[Z_?NumericQ, R_?NumericQ] := 
+  Module[{}, 
+   NDSolveValue[{(mu$e''[r] + (2/r) mu$e'[r] + 
+         4*Pi *alpha * charge$density$NM$alt[mu$n$NM, mu$e[r]] /. 
+        mass$rules) == 0, mu$e[r$center] == mu$e$center[Z, R], 
+     mu$e'[r$center] == 0}, 
+    mu$e, {r, r$center, 2*R}](*to be filled in*)];
+
+(*Use this to create an interpolating function that gives mu$e(r) for \
+Lead*)
+
+mu$e$of$r$Lead = mu$e$of$r[Z$Lead, R$Lead];
+
+(*Plot this function and the external Coulomb field on the same \
+axes.The horizontal axis should go from r$center to 2*R$Lead.*)
+mu$e$r = NDSolveValue[{(mu$e''[r] + (2/r) mu$e'[r] + 
+        4*Pi *alpha * charge$density$NM$alt[mu$n$NM, mu$e[r]] /. 
+       mass$rules) == 0, 
+    mu$e[r$center] == mu$e$center[Z$Lead, R$Lead], 
+    mu$e'[r$center] == 0}, mu$e, {r, r$center, 2*R$Lead}];
+legend3 = 
+  Grid[{{Graphics[{{Blue, Disk[{0, 0}, 0.1]}}, ImageSize -> 5], 
+     "mu$e$Lead[r]"}, {Graphics[{{Red, Disk[{0, 1}, 0.1]}}, 
+      ImageSize -> 5], "CoulomField$Lead[r]"}}];
+Plot[{mu$e$r[r], alpha Z$Lead/r}, {r, r$center, 2*R$Lead}, 
+ PlotStyle -> {Blue, Red}, PlotLegends -> legend3]
+(*Create a function that gives the charge density of the Lead \
+nucleus,as a function of radius from the center.*)
+
+charge$density$Lead[r_] = 
+  Module[{}, (charge$density$NM$alt[mu$n$NM, mu$e$r[r]] /. 
+     mass$rules)(*fill in*)];
+
+(*Make a plot of the charge density of the Lead nucleus,as a function \
+of radius from the center.Where is the positive charge concentrated?*)
+
+legend4 = 
+  Grid[{{Graphics[{{Blue, Disk[{0, 0}, 0.1]}}, ImageSize -> 5], 
+     "Charge$Density$Lead[r]"}}];
+Plot[charge$density$Lead[r], {r, r$center, R$Lead}, 
+ PlotLegends -> legend4]
+
+Print["Where is the positive charge concentrated: Previous plot shows \
+as we approach to the surface of nuleus, charge density incresese,\n \
+which means that charge is concentrated mainly on the surface of \
+nucleus."]
+(*Calculate the total charge of the nucleus by integrating the charge \
+density function over the nucleus:*)
+
+Z$Lead$TF = 
+  Module[{r}, 
+   N[4 \[Pi] Integrate[
+      charge$density$Lead[r]*r^2, {r, r$center, R$Lead}]]];
+
+Print["Charge on Lead nucleus in TF calculation is ", Z$Lead$TF, 
+  "  expected ", Z$Lead];
+(*One would expect the result to be Z$Lead,but it disagrees \
+slightly.Can you explain why?*)
+Print["Explian: One of the effective elements on behavior of \
+collective particles is Coulomb's force,\n which we have ignored it \
+in our model. Since coulmb's force can repel the particles with the \
+same charge,\n it will reduce the charge density and consequently \
+atomic number of Lead."]
+
+
+
+
+
+
+
+e$1[p_, m_] = Module[{}, Sqrt[p^2 + m^2]];
+number$density[pF_, m_] = Module[{}, pF^3/(3*Pi^2)];
+energy$density[pF_, m_] = 
+  Module[{p}, 
+   1/Pi^2*Integrate[e$1[p, m]*p^2, {p, 0, pF}, 
+     Assumptions -> {pF > 0, m > 0}]];
+pFermi[mu_, m_] = Module[{}, Sqrt[mu^2 - m^2]];
+pressure[mu_, m_] = Module[{pF}, pF = pFermi[mu, m];
+   Simplify[
+    mu*number$density[pF, m] - energy$density[pF, m], {mu > m, 
+     m > 0}]];
+
+e$NR[p_, m_] = Module[{}, m + p^2/(2*m)];
+pFermi$NR[mu_, m_] = Module[{}, Sqrt[2*m*(mu - m)]];
+number$density$NR[pF_, m_] = Module[{}, pF^3/(3*Pi^2)];
+(*as before*)
+energy$density$NR[pF_, m_] = 
+  Module[{p}, 
+   1/Pi^2*Integrate[e$NR[p, m]*p^2, {p, 0, pF}, 
+     Assumptions -> {pF > 0}]];
+pressure$NR[mu_, m_] = Module[{pF}, pF = pFermi$NR[mu, m];
+   Simplify[
+    mu*number$density$NR[pF, m] - energy$density$NR[pF, m], {mu > m, 
+     m > 0}]];
+
+
+(*Some physical constants:*)
+
+MeV$fm = 197.326960;(*For converting MeV to fm^-1 and vice \
+versa*)(*so 1fm=1/200=0.005 MeV^-1*)Mneutron = 939.565378;(*All \
+quantities will be in MeV*)Mproton = 938.272013;
+Melectron = 0.51100;
+mass$rules = {m$p -> Mproton, m$n -> Mneutron, m$e -> Melectron};
+(*In our functions we will write the masses of the particles as \
+m$p,m$n,m$e,and when we want to obtain numbers we will apply \
+mass$rules*)
+
+alpha = 1/
+  137.0;(*fine structure constant:coupling strength of \
+electromagnetism*)(*We model nuclear matter as a gas of \
+noninteracting neutrons,protons,and electrons.Create a function that \
+calculates the pressure of such a gas as a function of separate \
+chemical potentials for these particles:*)
+pressure$NM[mu$p_, mu$n_, mu$e_] = 
+ Module[{}, 
+  pressure$NR[mu$p, m$p] + pressure$NR[mu$n, mm$n] + 
+   pressure[mu$e, m$e](*assume m$p,m$n,m$e are global variables,
+  and that neutrons and protons are nonrelativistic,
+  but electrons are relativistic*)];
+
+(*In "beta-equilibrated" nuclear matter,the weak interactions have \
+allowed neutrons to convert to protons and vice versa,so \
+mu$n=mu$p+mu$e in beta-equilibrium.Create functions that give the \
+pressure,charge density,and nucleon density of beta-equilibrated \
+nuclear matter.*)
+
+pressure$NM$beta[mu$n_, mu$e_] = 
+  Module[{}, 
+   pressure$NR[mu$n - mu$e, m$p] + pressure$NR[mu$n, m$n] + 
+    pressure[mu$e, m$e]];
+charge$density$NM$beta[mu$n_, mu$e_] = 
+  Module[{}, 
+   FullSimplify[-D[pressure$NM$beta[mu$n, mu$e], 
+      mu$e]](*use a suitable derivative of the appropriate pressure \
+function Note that elec charge is
+   -d p/d mu$e because mu$e is the chemical potential for negative \
+charge*)];
+
+nucleon$density$NM$beta[mu$n_, mu$e_] = 
+  Module[{}, 
+   FullSimplify[
+    D[pressure$NM$beta[mu$n, mu$e], 
+     mu$n]](*use a suitable derivative of the appropriate pressure \
+function*)];
+charge$density$NM[mu$p_, mu$n_, mu$e_] = 
+  Module[{}, 
+   FullSimplify[
+    D[pressure$NM[mu$p, mu$n, mu$e], mu$p] - 
+     D[pressure$NM[mu$p, mu$n, mu$e], mu$e]]];
+(*make an alternate definition of charge density:proton density minus \
+electron density*)
+charge$density$NM$alt[mu$n_, mu$e_] = 
+  Module[{mu$p = mu$n - mu$e}, 
+   charge$density$NM[mu$p, mu$n, mu$e](*to be filled in*)];
+
+(*Run the following code,which checks that the two charge density \
+functions agree by plugging in numbers for mu$n and mu$e and applying \
+mass$rules:*)
+
+Print["charge density at mu_n=1200, mu_e = 100.0:   ", 
+  CForm[SetPrecision[
+    charge$density$NM$beta[1200.0, 100.0] /. mass$rules, 5]], 
+  " MeV^3"];
+Print["charge density in protons and electrons: ", 
+  CForm[SetPrecision[
+    charge$density$NM$alt[1200.0, 100.0] /. mass$rules, 5]], " MeV^3"];
+Print["charge density discrepancy: ", 
+  CForm[SetPrecision[(charge$density$NM$beta[1200.0, 100.0] - 
+       charge$density$NM$alt[1200.0, 100.0]) /. mass$rules, 5]], 
+  " MeV^3"];
+
+(*Check that the difference between the two functions simplifies \
+algebraically to zero*)
+If[(*fill in here*)
+  FullSimplify[
+    charge$density$NM$alt[mu$n, mu$e] - 
+     charge$density$NM$alt[mu$n, mu$e]] == 0
+  , Print["charge density == protons - electrons  OK"],(*else*)
+  Print["**** charge density == protons - electrons failed!"]];
+
+
+
+(*EXTRA CREDIT:charge$density$NM$alt is a simpler expression than \
+charge$density$NM$beta.Can you get Mathematica to simplify \
+charge$density$NM$beta so that it looks the same as \
+charge$density$NM$alt?I couldn't manage it.*)
+
+
+(*Now impose electrical neutrality:the electric charge density should \
+be zero in large volumes of beta-equilibrated nuclear matter.This \
+requirement determines mu$e as a function of mu$n:*)
+
+mu$e$neutral[mu$n_] = 
+  Module[{}, 
+   soln = Solve[charge$density$NM$alt[mu$n, mu$e] == 0, 
+     mu$e(*calculate what value of the electron chem pot gives zero \
+charge density*)]];
+mu$e$neutral[mu$n_] = mu$e /. soln[[2]]
+
+(*Use this to write the pressure and nucleon density of neutral \
+beta-equilibrated nuclear matter as a function of mu$n only:*)
+
+pressure$NM$beta$neutral[mu$n_] = 
+  Module[{mu$e = mu$e$neutral[mu$n]}, 
+   FullSimplify[pressure$NM$beta[mu$n, mu$e]]];(*to be filled in*)
+nucleon$density$NM$beta$neutral[mu$n_] = 
+ Module[{mu$e = mu$e$neutral[mu$n]}, 
+  FullSimplify[
+   nucleon$density$NM$beta[mu$n, 
+    mu$e]]];(*to be filled in*)(*This code checks that for \
+neutral,beta-equilibrated nuclear matter,the nucleon density agrees \
+with the appropriate derivative of the pressure,by plugging in \
+numbers:*)Print["neutral beta-equil nucleon density at mu_n=1200:  ", 
+ CForm[SetPrecision[
+   nucleon$density$NM$beta$neutral[1200.0] /. mass$rules, 
+   8]], " MeV^3"];
+Print["neutral beta-equil pressure deriv  at mu_n=1200:  ", 
+  CForm[SetPrecision[
+    D[pressure$NM$beta$neutral[mu$n], mu$n] /. {mu$n -> 1200.0} /. 
+     mass$rules, 8]], " MeV^3"];
+
+(*EXTRA CREDIT:Can you show that the two expressions are \
+algebraically identical?I couldn't manage it using \
+Simplify:If[FullSimplify[nucleon$density$NM$beta$neutral[mu$n]-D[\
+pressure$NM$beta$neutral[mu$n],mu$n],{m$n>m$p+m$e,m$p>0,m$e>0,mu$n>m$\
+n}]\[Equal]0,Print["neutral beta-equil nucleon density == deriv of \
+pressure OK"],Print["**** neutral beta-equil nucleon density == deriv \
+of pressure failed!"]];*)
+
+(*Now we start putting in numbers to apply this simple model to \
+real-world nuclei.The nucleon density of nuclei is 0.16 nucleons per \
+fm^3. But we will express everything in MeV,so we need to convert \
+that to MeV^3:*)
+
+nucleon$density$expt = 0.16*MeV$fm^3;
+
+(*Plot the nucleon density of neutral beta-equilibrated nuclear \
+matter,converted to fm^-3,as a function of mu$n,over a reasonable \
+range of values of mu$n,to see roughly where it has the physical \
+value of 0.16 nucleons/fm^3*)
+legend1 = 
+  Grid[{{Graphics[{Blue, Disk[{0, 0}, 0.1]}, ImageSize -> 5], 
+     "NucleonDensity[mu$n]"}}];
+Plot[nucleon$density$NM$beta$neutral[mu] /. mass$rules, {mu, 970, 
+  1020}, PlotLegends -> legend1]
+(*Use FindRoot to obtain the value of mu$n at which our free nucleon \
+gas has the density of real nuclear matter.Use mass$rules to give the \
+particles their physical mass values.*)
+nucleon$density$NM$beta$neutral$soln[mu$n0_] = 
+  nucleon$density$NM$beta$neutral[mu$n0] /. mass$rules ;
+mu$n$NM = 
+ mu$n0 /. FindRoot[
+   nucleon$density$NM$beta$neutral$soln[mu$n0] == 
+    nucleon$density$expt, {mu$n0, 
+    970}](*to be filled in.Note that this is a calculation of a \
+number,not a function definition.*)
+Print["neutral beta-equil nuclear matter: mu_n = ", mu$n$NM, " MeV"];
+
+(*Print out the value of mu$e in neutral beta-equilibrated nuclear \
+matter at nuclear density*)
+
+Print["neutral beta-equil nuclear matter: mu_e = ", 
+  mu$e$neutral[mu$n$NM] /. mass$rules(*to be filled in*), " MeV"];
+
+
+(*Write a function that estimates the radius (in MeV^-1) of a nucleus \
+of atomic mass number (total number of nucleons) A,assuming that the \
+nucleus is a sphere with nucleon density nucleon$density$expt.*)
+
+nuclear$radius[A_] = 
+  Module[{}, (3 A/(4 \[Pi]*nucleon$density$expt))^(
+   1/3)(*to be filled in*)];
+
+
+(*Now we estimate the expected radius of a Lead nucleus Z=82,A=207,in \
+MeV and fm*)
+
+Z$Lead = 82;
+A$Lead = 207;
+R$Lead = nuclear$radius[A$Lead];
+R$Lead$fm = R$Lead*MeV$fm;
+
+Print["Estimated radius of Lead nucleus is ", R$Lead, " MeV^-1  =  ", 
+  R$Lead$fm, " fm"];
+
+
+(*Finally,we will try to estimate the charge distribution of a \
+nucleus of charge Z and radius R.We treat the nucleus as a sphere of \
+nuclear matter in which mu$e is different from its neutrality \
+value,but mu$n stays at mu$n$NM.We use the Thomas-Fermi method:solve \
+the self-consistent Poisson equation to get mu$e$nucleus[Z,R,r] and \
+charge$density$nucleus[Z,R,r] with boundary conditions mu$e'[0]\
+\[Equal]0 (no charge at center) mu$e[R]\[Equal]Z*alpha/R (match to \
+Coulomb potl in vacuum,ignoring electron cloud outside nucleus for \
+now) Shooting method:choose mu$e[0] and evolve to R,varying mue[0] \
+until it obeys the BC at R.*)
+
+r$center = 
+ 0.01/MeV$fm;(*diffeq has 1/r^2 in it,so start at r just above 0*)
+Evolve$mu$e[Z_?NumericQ, R_?NumericQ, mue$center_?NumericQ] := 
+ Module[{}, 
+  NDSolve[{(mu$e$nucleus''[r] + (2/r) mu$e$nucleus'[r] + 
+        4*Pi *alpha * 
+         charge$density$NM$alt[mu$n$NM, mu$e$nucleus[r]] /. 
+       mass$rules) == 0, mu$e$nucleus[r$center] == mue$center, 
+    mu$e$nucleus'[r$center] == 0}, 
+   mu$e$nucleus[r], {r, r$center, R}](*solve the diffeq for mu$e[
+  r$center]\[Equal]mue$center,
+  and return the result as an InterpolatingFunction*)];
+(*Write a function to calculate and plot mu$e[r] for a nucleus of \
+given charge Z and radius R,with a given guess for mue$center*)
+legend2 = 
+  Grid[{{Graphics[{Blue, Disk[{0, 0}, 0.1]}, ImageSize -> 5], 
+     "mu$e$nucleus[r]"}}];
+make$mue$plot[Z_?NumericQ, R_?NumericQ, mue$center_?NumericQ] := 
+  Module[{}, mue = Evolve$mu$e[Z, R, mue$center];(*to be filled in*)
+   Show[Plot[
+     Evaluate[
+      Evolve$mu$e[Z, R, mue$center] /. mue](*to be filled in*), {r, 
+      r$center, R}, PlotLegends -> legend2]]];
+(*Call this function to make a plot of mu$e(r) for a Lead nucleus \
+with mu$e=40MeV at the center.Note how mu$e varies with r.*)
+
+make$mue$plot[Z$Lead, R$Lead, 40.0]
+
+(*We need to choose mu$e(r$center) so that at r=R mu$e agrees with \
+the external Coulonb field of a nucleus of charge Z,which varies with \
+radius as Z*alpha/r.To do this,first create a function that uses \
+Evolve$mu$e to calculate mu$e at the edge of a nucleus of given \
+charge,radius,and central mu$e:*)
+
+mu$e$at$R[Z_?NumericQ, R_?NumericQ, mue$center_?NumericQ] := 
+  Module[{}, 
+   NDSolveValue[{(mu$e$nucleus''[r] + (2/r) mu$e$nucleus'[r] + 
+         4*Pi *alpha * 
+          charge$density$NM$alt[mu$n$NM, mu$e$nucleus[r]] /. 
+        mass$rules) == 0, mu$e$nucleus[r$center] == mue$center, 
+     mu$e$nucleus'[r$center] == 0}, 
+    mu$e$nucleus[R], {r, r$center, R}](*to be filled in*)];
+
+(*Try it out for a Lead nucleus.First evaluate the external Coulomb \
+field Z*alpha/R at the edge of a Lead nucleus,then evaluate \
+mu$e$at$R[...] for a Lead nucleus with different values of \
+mu$e$center,and see roughly what value of mu$e$center will lead to \
+agreement.*)
+
+Print["Z alpha / R for Lead = ", (Z$Lead*alpha)/
+   R$Lead(*to be filled in*), " MeV"];
+
+Print["For Lead with mu_e(0) = ", 39(*fill in a value of mu$e$center*),
+   " MeV,", "  mu_e(R)= ", mu$e$at$R[Z$Lead, R$Lead, 39](*fill in*), 
+  " MeV"];
+Print["For Lead with mu_e(0) = ", 25(*fill in a value of mu$e$center*),
+   " MeV,", "  mu_e(R)= ", 
+  mu$e$at$R[Z$Lead, R$Lead, 37.90412](*fill in*), " MeV"];
+
+
+(*Write a function that solves for the correct value of mu$e at r=0 \
+in a nucleus of any Z and R.Use FindRoot,and use the results of your \
+numerical calculation for Lead to choose a reasonable starting range \
+for mu$e at r=0.*)
+
+
+mu$e$center[Z_?NumericQ, R_?NumericQ] := 
+  Module[{},(*to be filled in*)
+   mu$e$at$R$alt /. 
+    FindRoot [
+     mu$e$at$R[Z, R, mu$e$at$R$alt] - 
+      Z$Lead*alpha/R$Lead, {mu$e$at$R$alt, 25}]];
+
+(*Use the mu$e$center function to find out what mu$e is in the center \
+of a Lead nucleus:*)
+
+Print["For Lead, mu_e(r=0) = ", mu$e$center[Z$Lead, R$Lead], " MeV"];
+
+(*Create a function that calculates mu$e[r] inside a nucleus of \
+charge Z and radius R.It will use Evolve$mu$e to create the \
+InterpolatingFunction,and it will use mu$e$center to choose the \
+central value of mu$e as an initial condition for Evolve$mu$e,It will \
+return mu$e[r] as an InterpolatingFunction*)
+
+mu$e$of$r[Z_?NumericQ, R_?NumericQ] := 
+  Module[{}, 
+   NDSolveValue[{(mu$e''[r] + (2/r) mu$e'[r] + 
+         4*Pi *alpha * charge$density$NM$alt[mu$n$NM, mu$e[r]] /. 
+        mass$rules) == 0, mu$e[r$center] == mu$e$center[Z, R], 
+     mu$e'[r$center] == 0}, 
+    mu$e, {r, r$center, 2*R}](*to be filled in*)];
+
+(*Use this to create an interpolating function that gives mu$e(r) for \
+Lead*)
+
+mu$e$of$r$Lead = mu$e$of$r[Z$Lead, R$Lead];
+
+(*Plot this function and the external Coulomb field on the same \
+axes.The horizontal axis should go from r$center to 2*R$Lead.*)
+mu$e$r = NDSolveValue[{(mu$e''[r] + (2/r) mu$e'[r] + 
+        4*Pi *alpha * charge$density$NM$alt[mu$n$NM, mu$e[r]] /. 
+       mass$rules) == 0, 
+    mu$e[r$center] == mu$e$center[Z$Lead, R$Lead], 
+    mu$e'[r$center] == 0}, mu$e, {r, r$center, 2*R$Lead}];
+legend3 = 
+  Grid[{{Graphics[{{Blue, Disk[{0, 0}, 0.1]}}, ImageSize -> 5], 
+     "mu$e$Lead[r]"}, {Graphics[{{Red, Disk[{0, 1}, 0.1]}}, 
+      ImageSize -> 5], "CoulomField$Lead[r]"}}];
+Plot[{mu$e$r[r], alpha Z$Lead/r}, {r, r$center, 2*R$Lead}, 
+ PlotStyle -> {Blue, Red}, PlotLegends -> legend3]
+(*Create a function that gives the charge density of the Lead \
+nucleus,as a function of radius from the center.*)
+
+charge$density$Lead[r_] = 
+  Module[{}, (charge$density$NM$alt[mu$n$NM, mu$e$r[r]] /. 
+     mass$rules)(*fill in*)];
+
+(*Make a plot of the charge density of the Lead nucleus,as a function \
+of radius from the center.Where is the positive charge concentrated?*)
+
+legend4 = 
+  Grid[{{Graphics[{{Blue, Disk[{0, 0}, 0.1]}}, ImageSize -> 5], 
+     "Charge$Density$Lead[r]"}}];
+Plot[charge$density$Lead[r], {r, r$center, R$Lead}, 
+ PlotLegends -> legend4]
+
+Print["Where is the positive charge concentrated: Previous plot shows \
+as we approach to the surface of nuleus, charge density incresese,\n \
+which means that charge is concentrated mainly on the surface of \
+nucleus."]
+(*Calculate the total charge of the nucleus by integrating the charge \
+density function over the nucleus:*)
+
+Z$Lead$TF = 
+  Module[{r}, 
+   N[4 \[Pi] Integrate[
+      charge$density$Lead[r]*r^2, {r, r$center, R$Lead}]]];
+
+Print["Charge on Lead nucleus in TF calculation is ", Z$Lead$TF, 
+  "  expected ", Z$Lead];
+(*One would expect the result to be Z$Lead,but it disagrees \
+slightly.Can you explain why?*)
+Print["Explian: One of the effective elements on behavior of \
+collective particles is Coulomb's force,\n which we have ignored it \
+in our model. Since coulmb's force can repel the particles with the \
+same charge,\n it will reduce the charge density and consequently \
+atomic number of Lead."]
+
+
+
 

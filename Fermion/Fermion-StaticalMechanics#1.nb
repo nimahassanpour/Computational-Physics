@@ -1,613 +1,117 @@
-(*Physics 584,Computational Methods,
-2:Modeling a nucleus as a gas of free nucleons*)
-(*Set up relativistic \and nonrelativistic free Fermi gas*)
+(*Physics 584,Computational Methods, March 2016 Exercise \
+1:Free fermion gas at zero temperature*)
+e$1[p_, m_] = 
+  Module[{}, 
+   Sqrt[p^2 + m^2] ];
+Plot[e$1[p, 0.51], {p, -5, +5}]
 
 
-e$1[p_, m_] = Module[{}, Sqrt[p^2 + m^2]];
 number$density[pF_, m_] = Module[{}, pF^3/(3*Pi^2)];
+
 energy$density[pF_, m_] = 
-  Module[{p}, 
-   1/Pi^2*Integrate[e$1[p, m]*p^2, {p, 0, pF}, 
-     Assumptions -> {pF > 0, m > 0}]];
+  Module[{}, 
+   1/\[Pi]^2 Integrate[e$1[p, m] p^2, {p, 0, pF}, 
+     Assumptions -> {m > 0 , pF > 0, e}]];
+
+
 pFermi[mu_, m_] = Module[{}, Sqrt[mu^2 - m^2]];
-pressure[mu_, m_] = Module[{pF}, pF = pFermi[mu, m];
-   Simplify[
-    mu*number$density[pF, m] - energy$density[pF, m], {mu > m, 
-     m > 0}]];
+
+
+If[FullSimplify[
+    D[energy$density[pF, m], pF]/D[number$density[pF, m], pF]] == 
+   e$1[pF, m]
+  , Print["d e / d n == mu   OK"],(*else*)
+  Print["**** d e / d n == mu failed"]];
+
+pressure[mu_, m_] = 
+  Module[{pF = pFermi[mu, m]}, 
+   FullSimplify[
+    mu number$density[pF, m] - energy$density[pF, m]]];
+
+
+Print["electron pressure at mu=4MeV is: ", pressure[4.0, 0.51], 
+  " MeV^4"];
+
+
+If[FullSimplify[D[pressure[mu, m], mu], Assumptions -> mu > 0] == 
+   number$density[pFermi[mu, m], m]
+  , Print["d p / d mu == n   OK"],
+  Print["**** d p / d mu == n failed"]];
+
+
+
+
+e$ultra[p_] = Module[{}, p(*to be filled in*)];
+
+
+Plot[{e$ultra[p], e$1[p, 0.51]}, {p, -3, 3}]
+
+
+pFermi$ultra[mu_] = mu;
+number$density$ultra[pF_] = Module[{}, pF^3/(3*Pi^2)];
+energy$density$ultra[pF_] = 
+  Module[{}, 
+   1/\[Pi]^2 Integrate[e$ultra[p] p^2, {p, 0, pF}, 
+     Assumptions -> {m > 0 , pF > 0}]];
+pressure$ultra[mu_] = 
+  Module[{pF = mu}, 
+   FullSimplify[
+    mu number$density$ultra[pF] - 
+     energy$density$ultra[pF]]];
+
+
+If[Assuming[mu > 0, 
+    Normal[FullSimplify[Series[pressure[mu, m], {m, 0, 1}]]]] == 
+   pressure$ultra[mu]
+  , Print["Ultrarelativistic limit of pressure OK"],
+  Print["**** Ultrarelativistic limit of pressure failed!"]];
+
+
+(*Now we will obtain nonrelativistic limits of the number \
+density,energy density,and pressure,by assuming (mu-m) <<m and \
+re-evaluating the general expressions using a non-relativistic \
+dispersion relation e$NR and corresponding expression pFermi$NR for \
+the Fermi momentum:*)
 
 e$NR[p_, m_] = Module[{}, m + p^2/(2*m)];
-pFermi$NR[mu_, m_] = Module[{}, Sqrt[2*m*(mu - m)]];
+
+Plot[{e$ultra[p], e$1[p, 0.51], e$NR[p, .51]}, {p, -3, 
+     3}](*NR energy,
+   including rest mass*)(*A simple check:
+   make a single plot showing the exact,ultrarelativistic,
+   and nonrelativistic dispersion relations for electrons,
+   for momentum from-3 MeV to+3 MeV:*)(*code to be filled in*)(*Now \
+use the nonrelativistic dispersion relation to generate \
+nonrelativistic expressions for the pressure etc:*) pFermi$NR[mu_, 
+    m_] = Module[{}, Sqrt[2 m (mu - m)]];
 number$density$NR[pF_, m_] = Module[{}, pF^3/(3*Pi^2)];
-(*as before*)
 energy$density$NR[pF_, m_] = 
-  Module[{p}, 
-   1/Pi^2*Integrate[e$NR[p, m]*p^2, {p, 0, pF}, 
-     Assumptions -> {pF > 0}]];
-pressure$NR[mu_, m_] = Module[{pF}, pF = pFermi$NR[mu, m];
-   Simplify[
-    mu*number$density$NR[pF, m] - energy$density$NR[pF, m], {mu > m, 
-     m > 0}]];
-
-
-(*Some physical constants:*)
-
-MeV$fm = 197.326960;(*For converting MeV to fm^-1 and vice \
-versa*)(*so 1fm=1/200=0.005 MeV^-1*)Mneutron = 939.565378;(*All \
-quantities will be in MeV*)Mproton = 938.272013;
-Melectron = 0.51100;
-mass$rules = {m$p -> Mproton, m$n -> Mneutron, m$e -> Melectron};
-(*In our functions we will write the masses of the particles as \
-m$p,m$n,m$e,and when we want to obtain numbers we will apply \
-mass$rules*)
-
-alpha = 1/
-  137.0;(*fine structure constant:coupling strength of \
-electromagnetism*)(*We model nuclear matter as a gas of \
-noninteracting neutrons,protons,and electrons.Create a function that \
-calculates the pressure of such a gas as a function of separate \
-chemical potentials for these particles:*)
-pressure$NM[mu$p_, mu$n_, mu$e_] = 
  Module[{}, 
-  pressure$NR[mu$p, m$p] + pressure$NR[mu$n, mm$n] + 
-   pressure[mu$e, m$e](*assume m$p,m$n,m$e are global variables,
-  and that neutrons and protons are nonrelativistic,
-  but electrons are relativistic*)];
-
-(*In "beta-equilibrated" nuclear matter,the weak interactions have \
-allowed neutrons to convert to protons and vice versa,so \
-mu$n=mu$p+mu$e in beta-equilibrium.Create functions that give the \
-pressure,charge density,and nucleon density of beta-equilibrated \
-nuclear matter.*)
-
-pressure$NM$beta[mu$n_, mu$e_] = 
-  Module[{}, 
-   pressure$NR[mu$n - mu$e, m$p] + pressure$NR[mu$n, m$n] + 
-    pressure[mu$e, m$e]];
-charge$density$NM$beta[mu$n_, mu$e_] = 
-  Module[{}, 
-   FullSimplify[-D[pressure$NM$beta[mu$n, mu$e], 
-      mu$e]]];
-
-nucleon$density$NM$beta[mu$n_, mu$e_] = 
-  Module[{}, 
+  1/\[Pi]^2 Integrate[e$NR[p, m] p^2, {p, 0, pF}, 
+    Assumptions -> {m > 0 , pF > 0}]];
+pressure$NR[mu_, m_] = 
+  Module[{pF = pFermi$NR[mu, m]}, 
    FullSimplify[
-    D[pressure$NM$beta[mu$n, mu$e], 
-     mu$n]](*use a suitable derivative of the appropriate pressure \
-function*)];
-charge$density$NM[mu$p_, mu$n_, mu$e_] = 
-  Module[{}, 
-   FullSimplify[
-    D[pressure$NM[mu$p, mu$n, mu$e], mu$p] - 
-     D[pressure$NM[mu$p, mu$n, mu$e], mu$e]]];
-(*make an alternate definition of charge density:proton density minus \
-electron density*)
-charge$density$NM$alt[mu$n_, mu$e_] = 
-  Module[{mu$p = mu$n - mu$e}, 
-   charge$density$NM[mu$p, mu$n, mu$e](*to be filled in*)];
+    mu number$density$NR[pF, m] - 
+     energy$density$NR[pF, m]]];
 
 
+If[Refine[
+    Normal[Series[FullSimplify[pressure[e$1[p, m], m]], {p, 0, 5}]], 
+    m > 0] == 
+   Refine[pressure$NR[e$NR[p, m], m], p > 0]
+  , Print["Nonrelativistic limit of pressure OK"],
+  Print["**** Nonrelativistic limit of pressure failed!"]];
 
-Print["charge density at mu_n=1200, mu_e = 100.0:   ", 
-  CForm[SetPrecision[
-    charge$density$NM$beta[1200.0, 100.0] /. mass$rules, 5]], 
-  " MeV^3"];
-Print["charge density in protons and electrons: ", 
-  CForm[SetPrecision[
-    charge$density$NM$alt[1200.0, 100.0] /. mass$rules, 5]], " MeV^3"];
-Print["charge density discrepancy: ", 
-  CForm[SetPrecision[(charge$density$NM$beta[1200.0, 100.0] - 
-       charge$density$NM$alt[1200.0, 100.0]) /. mass$rules, 5]], 
-  " MeV^3"];
 
+If[Refine[
+    Normal[Series[FullSimplify[energy$density[pF, m]], {pF, 0, 5}]], 
+    m > 0] == Expand[energy$density$NR[pF, m]]
+  , Print["Nonrelativistic limit of energy density OK"],
+  Print["**** Nonrelativistic limit of energy density failed!"]];
 
-If[
-  FullSimplify[
-    charge$density$NM$alt[mu$n, mu$e] - 
-     charge$density$NM$alt[mu$n, mu$e]] == 0
-  , Print["charge density == protons - electrons  OK"],(*else*)
-  Print["**** charge density == protons - electrons failed!"]];
 
-
-
-
-
-mu$e$neutral[mu$n_] = 
-  Module[{}, 
-   soln = Solve[charge$density$NM$alt[mu$n, mu$e] == 0, 
-     mu$e]];
-mu$e$neutral[mu$n_] = mu$e /. soln[[2]]
-
-pressure$NM$beta$neutral[mu$n_] = 
-  Module[{mu$e = mu$e$neutral[mu$n]}, 
-   FullSimplify[pressure$NM$beta[mu$n, mu$e]]];(*to be filled in*)
-nucleon$density$NM$beta$neutral[mu$n_] = 
- Module[{mu$e = mu$e$neutral[mu$n]}, 
-  FullSimplify[
-   nucleon$density$NM$beta[mu$n, 
-    mu$e]]];
-    Print["neutral beta-equil nucleon density at mu_n=1200:  ", 
- CForm[SetPrecision[
-   nucleon$density$NM$beta$neutral[1200.0] /. mass$rules, 
-   8]], " MeV^3"];
-Print["neutral beta-equil pressure deriv  at mu_n=1200:  ", 
-  CForm[SetPrecision[
-    D[pressure$NM$beta$neutral[mu$n], mu$n] /. {mu$n -> 1200.0} /. 
-     mass$rules, 8]], " MeV^3"];
-
-
-
-nucleon$density$expt = 0.16*MeV$fm^3;
-
-
-legend1 = 
-  Grid[{{Graphics[{Blue, Disk[{0, 0}, 0.1]}, ImageSize -> 5], 
-     "NucleonDensity[mu$n]"}}];
-Plot[nucleon$density$NM$beta$neutral[mu] /. mass$rules, {mu, 970, 
-  1020}, PlotLegends -> legend1]
-
-nucleon$density$NM$beta$neutral$soln[mu$n0_] = 
-  nucleon$density$NM$beta$neutral[mu$n0] /. mass$rules ;
-mu$n$NM = 
- mu$n0 /. FindRoot[
-   nucleon$density$NM$beta$neutral$soln[mu$n0] == 
-    nucleon$density$expt, {mu$n0, 
-    970}]
-Print["neutral beta-equil nuclear matter: mu_n = ", mu$n$NM, " MeV"];
-
-
-
-Print["neutral beta-equil nuclear matter: mu_e = ", 
-  mu$e$neutral[mu$n$NM] /. mass$rules(*to be filled in*), " MeV"];
-
-
-nuclear$radius[A_] = 
-  Module[{}, (3 A/(4 \[Pi]*nucleon$density$expt))^(
-   1/3)(*to be filled in*)];
-
-
-
-
-Z$Lead = 82;
-A$Lead = 207;
-R$Lead = nuclear$radius[A$Lead];
-R$Lead$fm = R$Lead*MeV$fm;
-
-Print["Estimated radius of Lead nucleus is ", R$Lead, " MeV^-1  =  ", 
-  R$Lead$fm, " fm"];
-
-
-r$center = 
- 0.01/MeV$fm;(*diffeq has 1/r^2 in it,so start at r just above 0*)
-Evolve$mu$e[Z_?NumericQ, R_?NumericQ, mue$center_?NumericQ] := 
- Module[{}, 
-  NDSolve[{(mu$e$nucleus''[r] + (2/r) mu$e$nucleus'[r] + 
-        4*Pi *alpha * 
-         charge$density$NM$alt[mu$n$NM, mu$e$nucleus[r]] /. 
-       mass$rules) == 0, mu$e$nucleus[r$center] == mue$center, 
-    mu$e$nucleus'[r$center] == 0}, 
-   mu$e$nucleus[r], {r, r$center, R}]
-legend2 = 
-  Grid[{{Graphics[{Blue, Disk[{0, 0}, 0.1]}, ImageSize -> 5], 
-     "mu$e$nucleus[r]"}}];
-make$mue$plot[Z_?NumericQ, R_?NumericQ, mue$center_?NumericQ] := 
-  Module[{}, mue = Evolve$mu$e[Z, R, mue$center];
-   Show[Plot[
-     Evaluate[
-      Evolve$mu$e[Z, R, mue$center] /. mue], {r, 
-      r$center, R}, PlotLegends -> legend2]]];
-
-
-make$mue$plot[Z$Lead, R$Lead, 40.0]
-
-
-mu$e$at$R[Z_?NumericQ, R_?NumericQ, mue$center_?NumericQ] := 
-  Module[{}, 
-   NDSolveValue[{(mu$e$nucleus''[r] + (2/r) mu$e$nucleus'[r] + 
-         4*Pi *alpha * 
-          charge$density$NM$alt[mu$n$NM, mu$e$nucleus[r]] /. 
-        mass$rules) == 0, mu$e$nucleus[r$center] == mue$center, 
-     mu$e$nucleus'[r$center] == 0}, 
-    mu$e$nucleus[R], {r, r$center, R}](*to be filled in*)];
-
-
-Print["Z alpha / R for Lead = ", (Z$Lead*alpha)/
-   R$Lead, " MeV"];
-
-Print["For Lead with mu_e(0) = ", 39,
-   " MeV,", "  mu_e(R)= ", mu$e$at$R[Z$Lead, R$Lead, 39](*fill in*), 
-  " MeV"];
-Print["For Lead with mu_e(0) = ", 25,
-   " MeV,", "  mu_e(R)= ", 
-  mu$e$at$R[Z$Lead, R$Lead, 37.90412], " MeV"];
-
-
-
-mu$e$center[Z_?NumericQ, R_?NumericQ] := 
-  Module[{},
-   mu$e$at$R$alt /. 
-    FindRoot [
-     mu$e$at$R[Z, R, mu$e$at$R$alt] - 
-      Z$Lead*alpha/R$Lead, {mu$e$at$R$alt, 25}]];
-
-
-
-Print["For Lead, mu_e(r=0) = ", mu$e$center[Z$Lead, R$Lead], " MeV"];
-
-
-mu$e$of$r[Z_?NumericQ, R_?NumericQ] := 
-  Module[{}, 
-   NDSolveValue[{(mu$e''[r] + (2/r) mu$e'[r] + 
-         4*Pi *alpha * charge$density$NM$alt[mu$n$NM, mu$e[r]] /. 
-        mass$rules) == 0, mu$e[r$center] == mu$e$center[Z, R], 
-     mu$e'[r$center] == 0}, 
-    mu$e, {r, r$center, 2*R}]];
-
-
-mu$e$of$r$Lead = mu$e$of$r[Z$Lead, R$Lead];
-
-
-mu$e$r = NDSolveValue[{(mu$e''[r] + (2/r) mu$e'[r] + 
-        4*Pi *alpha * charge$density$NM$alt[mu$n$NM, mu$e[r]] /. 
-       mass$rules) == 0, 
-    mu$e[r$center] == mu$e$center[Z$Lead, R$Lead], 
-    mu$e'[r$center] == 0}, mu$e, {r, r$center, 2*R$Lead}];
-legend3 = 
-  Grid[{{Graphics[{{Blue, Disk[{0, 0}, 0.1]}}, ImageSize -> 5], 
-     "mu$e$Lead[r]"}, {Graphics[{{Red, Disk[{0, 1}, 0.1]}}, 
-      ImageSize -> 5], "CoulomField$Lead[r]"}}];
-Plot[{mu$e$r[r], alpha Z$Lead/r}, {r, r$center, 2*R$Lead}, 
- PlotStyle -> {Blue, Red}, PlotLegends -> legend3]
-
-charge$density$Lead[r_] = 
-  Module[{}, (charge$density$NM$alt[mu$n$NM, mu$e$r[r]] /. 
-     mass$rules)];
-
-
-legend4 = 
-  Grid[{{Graphics[{{Blue, Disk[{0, 0}, 0.1]}}, ImageSize -> 5], 
-     "Charge$Density$Lead[r]"}}];
-Plot[charge$density$Lead[r], {r, r$center, R$Lead}, 
- PlotLegends -> legend4]
-
-Print["Where is the positive charge concentrated: Previous plot shows \
-as we approach to the surface of nuleus, charge density incresese,\n \
-which means that charge is concentrated mainly on the surface of \
-nucleus."]
-
-
-Z$Lead$TF = 
-  Module[{r}, 
-   N[4 \[Pi] Integrate[
-      charge$density$Lead[r]*r^2, {r, r$center, R$Lead}]]];
-
-Print["Charge on Lead nucleus in TF calculation is ", Z$Lead$TF, 
-  "  expected ", Z$Lead];
-
-Print["Explian: One of the effective elements on behavior of \
-collective particles is Coulomb's force,\n which we have ignored it \
-in our model. Since coulmb's force can repel the particles with the \
-same charge,\n it will reduce the charge density and consequently \
-atomic number of Lead."]
-
-
-
-
-
-
-
-e$1[p_, m_] = Module[{}, Sqrt[p^2 + m^2]];
-number$density[pF_, m_] = Module[{}, pF^3/(3*Pi^2)];
-energy$density[pF_, m_] = 
-  Module[{p}, 
-   1/Pi^2*Integrate[e$1[p, m]*p^2, {p, 0, pF}, 
-     Assumptions -> {pF > 0, m > 0}]];
-pFermi[mu_, m_] = Module[{}, Sqrt[mu^2 - m^2]];
-pressure[mu_, m_] = Module[{pF}, pF = pFermi[mu, m];
-   Simplify[
-    mu*number$density[pF, m] - energy$density[pF, m], {mu > m, 
-     m > 0}]];
-
-e$NR[p_, m_] = Module[{}, m + p^2/(2*m)];
-pFermi$NR[mu_, m_] = Module[{}, Sqrt[2*m*(mu - m)]];
-number$density$NR[pF_, m_] = Module[{}, pF^3/(3*Pi^2)];
-(*as before*)
-energy$density$NR[pF_, m_] = 
-  Module[{p}, 
-   1/Pi^2*Integrate[e$NR[p, m]*p^2, {p, 0, pF}, 
-     Assumptions -> {pF > 0}]];
-pressure$NR[mu_, m_] = Module[{pF}, pF = pFermi$NR[mu, m];
-   Simplify[
-    mu*number$density$NR[pF, m] - energy$density$NR[pF, m], {mu > m, 
-     m > 0}]];
-
-
-
-
-MeV$fm = 197.326960;
-versa*)(*so 1fm=1/200=0.005 MeV^-1*)Mneutron = 939.565378;(*All \
-quantities will be in MeV*)Mproton = 938.272013;
-Melectron = 0.51100;
-mass$rules = {m$p -> Mproton, m$n -> Mneutron, m$e -> Melectron};
-(*In our functions we will write the masses of the particles as \
-m$p,m$n,m$e,and when we want to obtain numbers we will apply \
-mass$rules*)
-
-alpha = 1/
-  137.0;(*fine structure constant:coupling strength of \
-electromagnetism*)(*We model nuclear matter as a gas of \
-noninteracting neutrons,protons,and electrons.Create a function that \
-calculates the pressure of such a gas as a function of separate \
-chemical potentials for these particles:*)
-pressure$NM[mu$p_, mu$n_, mu$e_] = 
- Module[{}, 
-  pressure$NR[mu$p, m$p] + pressure$NR[mu$n, mm$n] + 
-   pressure[mu$e, m$e](*assume m$p,m$n,m$e are global variables,
-  and that neutrons and protons are nonrelativistic,
-  but electrons are relativistic*)];
-
-(*In "beta-equilibrated" nuclear matter,the weak interactions have \
-allowed neutrons to convert to protons and vice versa,so \
-mu$n=mu$p+mu$e in beta-equilibrium.Create functions that give the \
-pressure,charge density,and nucleon density of beta-equilibrated \
-nuclear matter.*)
-
-pressure$NM$beta[mu$n_, mu$e_] = 
-  Module[{}, 
-   pressure$NR[mu$n - mu$e, m$p] + pressure$NR[mu$n, m$n] + 
-    pressure[mu$e, m$e]];
-charge$density$NM$beta[mu$n_, mu$e_] = 
-  Module[{}, 
-   FullSimplify[-D[pressure$NM$beta[mu$n, mu$e], 
-      mu$e]]];
-
-nucleon$density$NM$beta[mu$n_, mu$e_] = 
-  Module[{}, 
-   FullSimplify[
-    D[pressure$NM$beta[mu$n, mu$e], 
-     mu$n]]];
-charge$density$NM[mu$p_, mu$n_, mu$e_] = 
-  Module[{}, 
-   FullSimplify[
-    D[pressure$NM[mu$p, mu$n, mu$e], mu$p] - 
-     D[pressure$NM[mu$p, mu$n, mu$e], mu$e]]];
-
-charge$density$NM$alt[mu$n_, mu$e_] = 
-  Module[{mu$p = mu$n - mu$e}, 
-   charge$density$NM[mu$p, mu$n, mu$e](*to be filled in*)];
-
-
-
-Print["charge density at mu_n=1200, mu_e = 100.0:   ", 
-  CForm[SetPrecision[
-    charge$density$NM$beta[1200.0, 100.0] /. mass$rules, 5]], 
-  " MeV^3"];
-Print["charge density in protons and electrons: ", 
-  CForm[SetPrecision[
-    charge$density$NM$alt[1200.0, 100.0] /. mass$rules, 5]], " MeV^3"];
-Print["charge density discrepancy: ", 
-  CForm[SetPrecision[(charge$density$NM$beta[1200.0, 100.0] - 
-       charge$density$NM$alt[1200.0, 100.0]) /. mass$rules, 5]], 
-  " MeV^3"];
-
-
-If[
-  FullSimplify[
-    charge$density$NM$alt[mu$n, mu$e] - 
-     charge$density$NM$alt[mu$n, mu$e]] == 0
-  , Print["charge density == protons - electrons  OK"],(*else*)
-  Print["**** charge density == protons - electrons failed!"]];
-
-
-
-
-
-
-
-mu$e$neutral[mu$n_] = 
-  Module[{}, 
-   soln = Solve[charge$density$NM$alt[mu$n, mu$e] == 0, 
-     mu$e]];
-mu$e$neutral[mu$n_] = mu$e /. soln[[2]]
-
-
-
-pressure$NM$beta$neutral[mu$n_] = 
-  Module[{mu$e = mu$e$neutral[mu$n]}, 
-   FullSimplify[pressure$NM$beta[mu$n, mu$e]]];(*to be filled in*)
-nucleon$density$NM$beta$neutral[mu$n_] = 
- Module[{mu$e = mu$e$neutral[mu$n]}, 
-  FullSimplify[
-   nucleon$density$NM$beta[mu$n, 
-    mu$e]]];
-    Print["neutral beta-equil nucleon density at mu_n=1200:  ", 
- CForm[SetPrecision[
-   nucleon$density$NM$beta$neutral[1200.0] /. mass$rules, 
-   8]], " MeV^3"];
-Print["neutral beta-equil pressure deriv  at mu_n=1200:  ", 
-  CForm[SetPrecision[
-    D[pressure$NM$beta$neutral[mu$n], mu$n] /. {mu$n -> 1200.0} /. 
-     mass$rules, 8]], " MeV^3"];
-
-
-
-
-
-nucleon$density$expt = 0.16*MeV$fm^3;
-
-
-legend1 = 
-  Grid[{{Graphics[{Blue, Disk[{0, 0}, 0.1]}, ImageSize -> 5], 
-     "NucleonDensity[mu$n]"}}];
-Plot[nucleon$density$NM$beta$neutral[mu] /. mass$rules, {mu, 970, 
-  1020}, PlotLegends -> legend1]
-
-nucleon$density$NM$beta$neutral$soln[mu$n0_] = 
-  nucleon$density$NM$beta$neutral[mu$n0] /. mass$rules ;
-mu$n$NM = 
- mu$n0 /. FindRoot[
-   nucleon$density$NM$beta$neutral$soln[mu$n0] == 
-    nucleon$density$expt, {mu$n0, 
-    970}]
-Print["neutral beta-equil nuclear matter: mu_n = ", mu$n$NM, " MeV"];
-
-
-Print["neutral beta-equil nuclear matter: mu_e = ", 
-  mu$e$neutral[mu$n$NM] /. mass$rules, " MeV"];
-
-
-
-nuclear$radius[A_] = 
-  Module[{}, (3 A/(4 \[Pi]*nucleon$density$expt))^(
-   1/3)];
-
-
-(*Now we estimate the expected radius of a Lead nucleus Z=82,A=207,in \
-MeV and fm*)
-
-Z$Lead = 82;
-A$Lead = 207;
-R$Lead = nuclear$radius[A$Lead];
-R$Lead$fm = R$Lead*MeV$fm;
-
-Print["Estimated radius of Lead nucleus is ", R$Lead, " MeV^-1  =  ", 
-  R$Lead$fm, " fm"];
-
-
-(*Finally,we will try to estimate the charge distribution of a \
-nucleus of charge Z and radius R.We treat the nucleus as a sphere of \
-nuclear matter in which mu$e is different from its neutrality \
-value,but mu$n stays at mu$n$NM.We use the Thomas-Fermi method:solve \
-the self-consistent Poisson equation to get mu$e$nucleus[Z,R,r] and \
-charge$density$nucleus[Z,R,r] with boundary conditions mu$e'[0]\
-\[Equal]0 (no charge at center) mu$e[R]\[Equal]Z*alpha/R (match to \
-Coulomb potl in vacuum,ignoring electron cloud outside nucleus for \
-now) Shooting method:choose mu$e[0] and evolve to R,varying mue[0] \
-until it obeys the BC at R.*)
-
-r$center = 
- 0.01/MeV$fm;(*diffeq has 1/r^2 in it,so start at r just above 0*)
-Evolve$mu$e[Z_?NumericQ, R_?NumericQ, mue$center_?NumericQ] := 
- Module[{}, 
-  NDSolve[{(mu$e$nucleus''[r] + (2/r) mu$e$nucleus'[r] + 
-        4*Pi *alpha * 
-         charge$density$NM$alt[mu$n$NM, mu$e$nucleus[r]] /. 
-       mass$rules) == 0, mu$e$nucleus[r$center] == mue$center, 
-    mu$e$nucleus'[r$center] == 0}, 
-   mu$e$nucleus[r], {r, r$center, R}](*solve the diffeq for mu$e[
-  r$center]\[Equal]mue$center,
-  and return the result as an InterpolatingFunction*)];
-(*Write a function to calculate and plot mu$e[r] for a nucleus of \
-given charge Z and radius R,with a given guess for mue$center*)
-legend2 = 
-  Grid[{{Graphics[{Blue, Disk[{0, 0}, 0.1]}, ImageSize -> 5], 
-     "mu$e$nucleus[r]"}}];
-make$mue$plot[Z_?NumericQ, R_?NumericQ, mue$center_?NumericQ] := 
-  Module[{}, mue = Evolve$mu$e[Z, R, mue$center];
-   Show[Plot[
-     Evaluate[
-      Evolve$mu$e[Z, R, mue$center] /. mue], {r, 
-      r$center, R}, PlotLegends -> legend2]]];
-(*Call this function to make a plot of mu$e(r) for a Lead nucleus \
-with mu$e=40MeV at the center.Note how mu$e varies with r.*)
-
-make$mue$plot[Z$Lead, R$Lead, 40.0]
-
-(*We need to choose mu$e(r$center) so that at r=R mu$e agrees with \
-the external Coulonb field of a nucleus of charge Z,which varies with \
-radius as Z*alpha/r.To do this,first create a function that uses \
-Evolve$mu$e to calculate mu$e at the edge of a nucleus of given \
-charge,radius,and central mu$e:*)
-
-mu$e$at$R[Z_?NumericQ, R_?NumericQ, mue$center_?NumericQ] := 
-  Module[{}, 
-   NDSolveValue[{(mu$e$nucleus''[r] + (2/r) mu$e$nucleus'[r] + 
-         4*Pi *alpha * 
-          charge$density$NM$alt[mu$n$NM, mu$e$nucleus[r]] /. 
-        mass$rules) == 0, mu$e$nucleus[r$center] == mue$center, 
-     mu$e$nucleus'[r$center] == 0}, 
-    mu$e$nucleus[R], {r, r$center, R}](*to be filled in*)];
-
-
-Print["Z alpha / R for Lead = ", (Z$Lead*alpha)/
-   R$Lead(*to be filled in*), " MeV"];
-
-Print["For Lead with mu_e(0) = ", 39,
-   " MeV,", "  mu_e(R)= ", mu$e$at$R[Z$Lead, R$Lead, 39](*fill in*), 
-  " MeV"];
-Print["For Lead with mu_e(0) = ", 25,
-   " MeV,", "  mu_e(R)= ", 
-  mu$e$at$R[Z$Lead, R$Lead, 37.90412], " MeV"];
-
-
-
-
-
-mu$e$center[Z_?NumericQ, R_?NumericQ] := 
-  Module[{},(*to be filled in*)
-   mu$e$at$R$alt /. 
-    FindRoot [
-     mu$e$at$R[Z, R, mu$e$at$R$alt] - 
-      Z$Lead*alpha/R$Lead, {mu$e$at$R$alt, 25}]];
-
-
-Print["For Lead, mu_e(r=0) = ", mu$e$center[Z$Lead, R$Lead], " MeV"];
-
-
-
-mu$e$of$r[Z_?NumericQ, R_?NumericQ] := 
-  Module[{}, 
-   NDSolveValue[{(mu$e''[r] + (2/r) mu$e'[r] + 
-         4*Pi *alpha * charge$density$NM$alt[mu$n$NM, mu$e[r]] /. 
-        mass$rules) == 0, mu$e[r$center] == mu$e$center[Z, R], 
-     mu$e'[r$center] == 0}, 
-    mu$e, {r, r$center, 2*R}](*to be filled in*)];
-
-
-mu$e$of$r$Lead = mu$e$of$r[Z$Lead, R$Lead];
-
-
-mu$e$r = NDSolveValue[{(mu$e''[r] + (2/r) mu$e'[r] + 
-        4*Pi *alpha * charge$density$NM$alt[mu$n$NM, mu$e[r]] /. 
-       mass$rules) == 0, 
-    mu$e[r$center] == mu$e$center[Z$Lead, R$Lead], 
-    mu$e'[r$center] == 0}, mu$e, {r, r$center, 2*R$Lead}];
-legend3 = 
-  Grid[{{Graphics[{{Blue, Disk[{0, 0}, 0.1]}}, ImageSize -> 5], 
-     "mu$e$Lead[r]"}, {Graphics[{{Red, Disk[{0, 1}, 0.1]}}, 
-      ImageSize -> 5], "CoulomField$Lead[r]"}}];
-Plot[{mu$e$r[r], alpha Z$Lead/r}, {r, r$center, 2*R$Lead}, 
- PlotStyle -> {Blue, Red}, PlotLegends -> legend3]
-
-charge$density$Lead[r_] = 
-  Module[{}, (charge$density$NM$alt[mu$n$NM, mu$e$r[r]] /. 
-     mass$rules)(*fill in*)];
-
-
-legend4 = 
-  Grid[{{Graphics[{{Blue, Disk[{0, 0}, 0.1]}}, ImageSize -> 5], 
-     "Charge$Density$Lead[r]"}}];
-Plot[charge$density$Lead[r], {r, r$center, R$Lead}, 
- PlotLegends -> legend4]
-
-Print["Where is the positive charge concentrated: Previous plot shows \
-as we approach to the surface of nuleus, charge density incresese,\n \
-which means that charge is concentrated mainly on the surface of \
-nucleus."]
-
-Z$Lead$TF = 
-  Module[{r}, 
-   N[4 \[Pi] Integrate[
-      charge$density$Lead[r]*r^2, {r, r$center, R$Lead}]]];
-
-Print["Charge on Lead nucleus in TF calculation is ", Z$Lead$TF, 
-  "  expected ", Z$Lead];
-
-Print["Explian: One of the effective elements on behavior of \
-collective particles is Coulomb's force,\n which we have ignored it \
-in our model. Since coulmb's force can repel the particles with the \
-same charge,\n it will reduce the charge density and consequently \
-atomic number of Lead."]
-
-
-
-
+If[D[Refine[pressure$NR[e$NR[p, m], m], p > 0], p]/D[e$NR[p, m], p] ==
+    number$density$NR[p, m]
+  , Print["Nonrelativistic d p / d mu == n   OK"],
+  Print["**** Nonrelativistic d p / d mu == n failed"]];
